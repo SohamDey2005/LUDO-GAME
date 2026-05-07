@@ -71,38 +71,6 @@ async def roll_dice(game_id: str):
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
 
-@router.post("/{game_id}/force-roll/{value}", response_model=GameState)
-async def force_roll(game_id: str, value: int):
-    """Debug endpoint to force a specific dice roll."""
-    try:
-        game = get_game(game_id)
-        if game.dice_value is not None:
-            raise ValueError("Dice already rolled")
-            
-        game.dice_value = value
-        game.last_action = f"DEBUG: Forced roll {value} for {game.current_turn.value}."
-        
-        from app.core.rules import RulesEngine
-        if value == 6:
-            game.consecutive_sixes += 1
-            if game.consecutive_sixes == 3:
-                game.last_action += " Three consecutive sixes! penalty triggered."
-                GameEngine.rollback_turn(game)
-                GameEngine.next_turn(game)
-        else:
-            game.consecutive_sixes = 0
-            
-        valid_tokens = RulesEngine.get_valid_moves(game, game.current_turn, game.dice_value)
-        if not valid_tokens:
-            game.last_action += " No valid moves available."
-            GameEngine.next_turn(game)
-            
-        save_game(game)
-        await manager.broadcast_game_state(game_id, game.model_dump(mode='json'))
-        return game
-    except ValueError as e:
-        raise HTTPException(status_code=400, detail=str(e))
-
 @router.post("/{game_id}/move", response_model=GameState)
 async def move_token(game_id: str, request: MoveRequest):
     try:
