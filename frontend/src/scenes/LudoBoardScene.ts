@@ -173,15 +173,16 @@ export default class LudoBoardScene extends Phaser.Scene {
                 const finalX = baseCoords.x * this.cellSize + this.cellSize/2 + ox;
                 const finalY = baseCoords.y * this.cellSize + this.cellSize/2 + oy;
 
-                // Match hitbox closely to visual radius with slight 15% padding for usability
+                // Match hitbox closely to visual radius with slight padding
                 const visualRadius = this.cellSize * (group.length > 1 ? 0.25 : 0.35);
-                const hitboxRadius = visualRadius * 1.15;
+                // Ensure a minimum touch target size of ~22px for mobile usability
+                const hitboxRadius = Math.max(visualRadius * 1.2, 22);
 
                 const sprite = this.add.circle(finalX, finalY, visualRadius, colorsMap[player.color]);
                 sprite.setStrokeStyle(2, 0xffffff, 0.8);
                 
                 // Use the precise visual circle as the hit area
-                sprite.setInteractive(new Phaser.Geom.Circle(0, 0, hitboxRadius / sprite.scaleX), Phaser.Geom.Circle.Contains);
+                sprite.setInteractive(new Phaser.Geom.Circle(0, 0, hitboxRadius), Phaser.Geom.Circle.Contains);
                 
                 // Pulse effect for movable tokens
                 if (isMovable) {
