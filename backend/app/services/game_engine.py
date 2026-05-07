@@ -150,8 +150,11 @@ class GameEngine:
             return
 
         # Advance turn
+        token_finished = token_to_move.status == TokenStatus.FINISHED
+        
         if (game_state.config.bonus_turn_on_six and game_state.dice_value == 6) or \
-           (game_state.config.bonus_turn_on_capture and captured_token is not None):
+           (game_state.config.bonus_turn_on_capture and captured_token is not None) or \
+           (game_state.config.bonus_turn_on_finish and token_finished):
             game_state.dice_value = None # Reset dice for extra roll
             game_state.last_action += " Extra turn!"
         else:
