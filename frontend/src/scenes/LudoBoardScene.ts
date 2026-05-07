@@ -165,11 +165,35 @@ export default class LudoBoardScene extends Phaser.Scene {
                     const angle = (i / group.length) * Math.PI * 2;
                     const r = this.cellSize * 0.2; ox = Math.cos(angle) * r; oy = Math.sin(angle) * r;
                 }
-                const sprite = this.add.circle(baseCoords.x * this.cellSize + this.cellSize/2 + ox, baseCoords.y * this.cellSize + this.cellSize/2 + oy, this.cellSize * (group.length > 1 ? 0.25 : 0.35), colorsMap[player.color]);
+                const radius = this.cellSize * (group.length > 1 ? 0.25 : 0.35);
+                const sprite = this.add.circle(
+                    baseCoords.x * this.cellSize + this.cellSize/2 + ox, 
+                    baseCoords.y * this.cellSize + this.cellSize/2 + oy, 
+                    radius, 
+                    colorsMap[player.color]
+                );
+                
                 sprite.setStrokeStyle(2, 0xffffff);
-                sprite.setInteractive(new Phaser.Geom.Circle(0, 0, this.cellSize * 0.4), Phaser.Geom.Circle.Contains);
+                
+                // Align hit area exactly with the circle (0,0 is top-left in local bounds)
+                sprite.setInteractive(new Phaser.Geom.Circle(radius, radius, radius), Phaser.Geom.Circle.Contains);
+                
                 this.tweens.add({ targets: sprite, scale: { from: 0, to: 1 }, duration: 300, ease: 'Back.easeOut' });
+                
                 sprite.on('pointerdown', () => window.dispatchEvent(new CustomEvent('ludo-token-click', { detail: token.id })));
+                
+                // Hover visual feedback
+                sprite.on('pointerover', () => {
+                    this.tweens.add({ targets: sprite, scale: 1.15, duration: 100 });
+                    sprite.setStrokeStyle(4, 0xffffff);
+                    document.body.style.cursor = 'pointer';
+                });
+                sprite.on('pointerout', () => {
+                    this.tweens.add({ targets: sprite, scale: 1, duration: 100 });
+                    sprite.setStrokeStyle(2, 0xffffff);
+                    document.body.style.cursor = 'default';
+                });
+                
                 this.tokenSprites.push(sprite);
             });
         });
