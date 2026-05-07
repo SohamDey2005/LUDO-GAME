@@ -70,7 +70,6 @@ class GameState(BaseModel):
     winner: Optional[Color] = None
     last_action: Optional[str] = None
     turn_snapshot: Optional[Dict] = None # For Rule 6 rollback
-    movable_tokens: List[str] = [] # List of token IDs that can move in current state
     
     # Track the order of play
     turn_order: List[Color] = [Color.RED, Color.GREEN, Color.YELLOW, Color.BLUE]

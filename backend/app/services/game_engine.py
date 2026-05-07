@@ -96,8 +96,6 @@ class GameEngine:
 
         # Check if any valid moves exist
         valid_tokens = RulesEngine.get_valid_moves(game_state, game_state.current_turn, game_state.dice_value)
-        game_state.movable_tokens = [t.id for t in valid_tokens]
-        
         if not valid_tokens:
             game_state.last_action += " No valid moves available."
             GameEngine.next_turn(game_state)
@@ -143,9 +141,6 @@ class GameEngine:
             captured_token.status = TokenStatus.BASE
             captured_token.position = -1
             game_state.last_action += f" Captured {captured_token.color.value} token!"
-
-        # Clear movable tokens after move
-        game_state.movable_tokens = []
 
         # Check win condition
         if RulesEngine.check_win_condition(game_state, current_color):

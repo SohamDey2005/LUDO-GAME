@@ -157,76 +157,19 @@ export default class LudoBoardScene extends Phaser.Scene {
             });
         });
 
-        const movableTokenIds = gameState.movable_tokens || [];
-
         Object.entries(cellGroups).forEach(([cellId, group]) => {
             group.forEach((item, i) => {
                 const { token, player, baseCoords } = item;
-                const isMovable = movableTokenIds.includes(token.id);
-                
                 let ox = 0, oy = 0;
                 if (group.length > 1 && !cellId.startsWith('base')) {
                     const angle = (i / group.length) * Math.PI * 2;
                     const r = this.cellSize * 0.2; ox = Math.cos(angle) * r; oy = Math.sin(angle) * r;
                 }
-                
-                const finalX = baseCoords.x * this.cellSize + this.cellSize/2 + ox;
-                const finalY = baseCoords.y * this.cellSize + this.cellSize/2 + oy;
-
-                // Match hitbox closely to visual radius with slight padding
-                const visualRadius = this.cellSize * (group.length > 1 ? 0.25 : 0.35);
-                // Ensure a minimum touch target size of ~22px for mobile usability
-                const hitboxRadius = Math.max(visualRadius * 1.2, 22);
-
-                const sprite = this.add.circle(finalX, finalY, visualRadius, colorsMap[player.color]);
-                sprite.setStrokeStyle(2, 0xffffff, 0.8);
-                
-                // Use the precise visual circle as the hit area
-                sprite.setInteractive(new Phaser.Geom.Circle(0, 0, hitboxRadius), Phaser.Geom.Circle.Contains);
-                
-                // Pulse effect for movable tokens
-                if (isMovable) {
-                    this.tweens.add({
-                        targets: sprite,
-                        scale: 1.1,
-                        duration: 800,
-                        yoyo: true,
-                        repeat: -1,
-                        ease: 'Sine.easeInOut'
-                    });
-                    sprite.setStrokeStyle(3, 0xffffff, 1);
-                }
-
-                this.tweens.add({ 
-                    targets: sprite, 
-                    scale: { from: 0, to: isMovable ? 1.1 : 1 }, 
-                    duration: 300, 
-                    ease: 'Back.easeOut' 
-                });
-
-                // Interaction Handlers
-                sprite.on('pointerover', () => {
-                    if (isMovable) {
-                        sprite.setStrokeStyle(4, 0xffffff, 1);
-                        this.tweens.add({ targets: sprite, scale: 1.2, duration: 100 });
-                        document.body.style.cursor = 'pointer';
-                    }
-                });
-
-                sprite.on('pointerout', () => {
-                    sprite.setStrokeStyle(isMovable ? 3 : 2, 0xffffff, isMovable ? 1 : 0.8);
-                    this.tweens.add({ targets: sprite, scale: isMovable ? 1.1 : 1, duration: 100 });
-                    document.body.style.cursor = 'default';
-                });
-
-                sprite.on('pointerdown', () => {
-                    if (isMovable) {
-                        sprite.setAlpha(0.6);
-                        this.tweens.add({ targets: sprite, scale: 0.9, duration: 50, yoyo: true });
-                        window.dispatchEvent(new CustomEvent('ludo-token-click', { detail: token.id }));
-                    }
-                });
-
+                const sprite = this.add.circle(baseCoords.x * this.cellSize + this.cellSize/2 + ox, baseCoords.y * this.cellSize + this.cellSize/2 + oy, this.cellSize * (group.length > 1 ? 0.25 : 0.35), colorsMap[player.color]);
+                sprite.setStrokeStyle(2, 0xffffff);
+                sprite.setInteractive(new Phaser.Geom.Circle(0, 0, this.cellSize * 0.4), Phaser.Geom.Circle.Contains);
+                this.tweens.add({ targets: sprite, scale: { from: 0, to: 1 }, duration: 300, ease: 'Back.easeOut' });
+                sprite.on('pointerdown', () => window.dispatchEvent(new CustomEvent('ludo-token-click', { detail: token.id })));
                 this.tokenSprites.push(sprite);
             });
         });
