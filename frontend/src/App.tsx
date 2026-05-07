@@ -131,7 +131,13 @@ function App() {
       </div>
 
       <PhaserGameComponent gameState={gameState} onTokenClick={handleTokenClick} />
-      
+
+      {/* Footer Credit */}
+      <footer className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-in fade-in duration-1000">
+        <p className="text-slate-500 text-[10px] sm:text-xs font-medium tracking-[0.2em] uppercase opacity-60">
+          Created & Developed by SOHAM DEY
+        </p>
+      </footer>
     </div>
   );
 }
