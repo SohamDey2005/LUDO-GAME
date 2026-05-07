@@ -22,6 +22,11 @@ class MoveRequest(BaseModel):
 @router.post("/create", response_model=GameState)
 async def create_game():
     game = GameEngine.create_game()
+    GameEngine.add_player(game, "Player 1", Color.RED, PlayerType.HUMAN)
+    GameEngine.add_player(game, "Player 2", Color.GREEN, PlayerType.HUMAN)
+    GameEngine.add_player(game, "Player 3", Color.YELLOW, PlayerType.HUMAN)
+    GameEngine.add_player(game, "Player 4", Color.BLUE, PlayerType.HUMAN)
+    GameEngine.start_game(game)
     save_game(game)
     return game
 

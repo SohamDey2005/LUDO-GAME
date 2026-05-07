@@ -6,7 +6,7 @@ from app.models.game import GameState
 # In-memory store for Phase 3 (will be replaced by DB later)
 games_store: Dict[str, GameState] = {}
 leaderboard_store: Dict[str, int] = {}
-DB_FILE = "ludo_db.json"
+DB_FILE = "/tmp/ludo_db.json"
 
 def _load_db():
     if os.path.exists(DB_FILE):

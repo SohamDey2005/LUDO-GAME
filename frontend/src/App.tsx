@@ -28,6 +28,25 @@ function App() {
     };
   }, [clientId]);
 
+  // Handle AI turns automatically
+  useEffect(() => {
+    if (gameState && gameState.status === 'in_progress' && !isRolling) {
+      const currentPlayer = gameState.players[gameState.current_turn];
+      if (currentPlayer && currentPlayer.player_type === 'ai') {
+        // Add a small delay for realism
+        const timer = setTimeout(async () => {
+          try {
+            await fetch(`https://ludo-backend-175911647281.us-central1.run.app/api/game/${gameState.id}/ai-move`, { method: 'POST' });
+            // The socket will handle the state update
+          } catch (e) {
+            console.error("AI move failed", e);
+          }
+        }, 1000);
+        return () => clearTimeout(timer);
+      }
+    }
+  }, [gameState, isRolling]);
+
   const handleRollDice = async () => {
     if (!gameState) return;
     setIsRolling(true);
@@ -97,7 +116,7 @@ function App() {
         <div className="pt-4 border-t border-slate-700 w-full flex justify-center">
             <Dice 
                 value={gameState.dice_value || 6} 
-                isRolling={isRolling} 
+                isRolling={isRolling || (gameState.dice_value !== null && !isRolling)} 
                 onRoll={handleRollDice} 
             />
         </div>
