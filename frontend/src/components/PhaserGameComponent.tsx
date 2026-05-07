@@ -9,23 +9,33 @@ interface Props {
 
 const PhaserGameComponent: React.FC<Props> = ({ gameState, onTokenClick }) => {
     const gameRef = useRef<Phaser.Game | null>(null);
+    const onTokenClickRef = useRef(onTokenClick);
+
+    // Keep the ref updated with the latest callback
+    useEffect(() => {
+        onTokenClickRef.current = onTokenClick;
+    }, [onTokenClick]);
 
     useEffect(() => {
         if (!gameRef.current) {
             gameRef.current = createPhaserGame();
             
             // Listen for token clicks from Phaser
-            window.addEventListener('ludo-token-click', ((e: CustomEvent) => {
-                onTokenClick(e.detail);
-            }) as EventListener);
-        }
+            const handleTokenClick = (e: Event) => {
+                const customEvent = e as CustomEvent;
+                onTokenClickRef.current(customEvent.detail);
+            };
+            
+            window.addEventListener('ludo-token-click', handleTokenClick);
 
-        return () => {
-            if (gameRef.current) {
-                gameRef.current.destroy(true);
-                gameRef.current = null;
-            }
-        };
+            return () => {
+                window.removeEventListener('ludo-token-click', handleTokenClick);
+                if (gameRef.current) {
+                    gameRef.current.destroy(true);
+                    gameRef.current = null;
+                }
+            };
+        }
     }, []);
 
     // Sync state to Phaser

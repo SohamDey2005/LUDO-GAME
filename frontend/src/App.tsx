@@ -114,11 +114,19 @@ function App() {
         </div>
 
         <div className="pt-4 border-t border-slate-700 w-full flex justify-center">
-            <Dice 
-                value={gameState.dice_value || 6} 
-                isRolling={isRolling || (gameState.dice_value !== null && !isRolling)} 
-                onRoll={handleRollDice} 
-            />
+            <div className="flex flex-col items-center gap-4">
+                <Dice 
+                    value={gameState.dice_value || 6} 
+                    isRolling={isRolling} 
+                    disabled={gameState.dice_value !== null}
+                    onRoll={handleRollDice} 
+                />
+                {gameState.dice_value !== null && !isRolling && (
+                    <span className="text-blue-400 font-bold animate-pulse text-sm">
+                        Select a token to move!
+                    </span>
+                )}
+            </div>
         </div>
       </div>
 

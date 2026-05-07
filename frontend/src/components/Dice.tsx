@@ -4,10 +4,11 @@ import { audioManager } from '../services/audio';
 interface DiceProps {
     value: number;
     isRolling: boolean;
+    disabled?: boolean;
     onRoll: () => void;
 }
 
-const Dice: React.FC<DiceProps> = ({ value, isRolling, onRoll }) => {
+const Dice: React.FC<DiceProps> = ({ value, isRolling, disabled, onRoll }) => {
     const handleRoll = () => {
         audioManager.play('roll');
         onRoll();
@@ -40,11 +41,11 @@ const Dice: React.FC<DiceProps> = ({ value, isRolling, onRoll }) => {
         <div className="flex flex-col items-center gap-4">
             <button 
                 onClick={handleRoll}
-                disabled={isRolling}
+                disabled={isRolling || disabled}
                 className={`
                     relative w-20 h-20 bg-white rounded-2xl shadow-xl flex items-center justify-center
                     transition-all duration-300 ease-in-out border-b-4 border-slate-300
-                    ${isRolling ? 'animate-bounce cursor-not-allowed scale-95 border-b-0 translate-y-1' : 'hover:-translate-y-1 hover:shadow-2xl cursor-pointer active:translate-y-1 active:border-b-0'}
+                    ${isRolling ? 'animate-bounce cursor-not-allowed scale-95 border-b-0 translate-y-1' : (disabled ? 'opacity-50 cursor-not-allowed' : 'hover:-translate-y-1 hover:shadow-2xl cursor-pointer active:translate-y-1 active:border-b-0')}
                 `}
             >
                 <div className="grid grid-cols-3 grid-rows-3 gap-1 p-2 w-full h-full">
