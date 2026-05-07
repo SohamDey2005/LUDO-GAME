@@ -1,21 +1,15 @@
 from typing import List, Dict, Union
 from app.models.game import Color
 
-# Cell IDs are either integers (0-51) for the main perimeter
-# or strings for home stretch and finish.
-
-# Aligned with LudoBoardScene.ts (Clockwise from Green)
+# Aligned with LudoBoardScene.ts (Clockwise from Top-Left Red)
 START_SQUARES = {
-    Color.GREEN: 0,
-    Color.YELLOW: 13,
-    Color.BLUE: 26,
-    Color.RED: 39
+    Color.RED: 0,
+    Color.BLUE: 13,
+    Color.YELLOW: 26,
+    Color.GREEN: 39
 }
 
 def get_full_path_for_color(color: Color) -> List[Union[int, str]]:
-    """
-    Returns the complete sequence of Cell IDs for a player's token journey.
-    """
     start_idx = START_SQUARES[color]
     
     # 51 Perimeter squares
