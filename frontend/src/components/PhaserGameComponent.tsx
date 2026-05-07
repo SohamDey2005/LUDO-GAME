@@ -49,8 +49,8 @@ const PhaserGameComponent: React.FC<Props> = ({ gameState, onTokenClick }) => {
     }, [gameState]);
 
     return (
-        <div className="w-full max-w-[min(90vw,600px)] aspect-square rounded-xl overflow-hidden shadow-2xl border-4 border-slate-700 bg-white">
-            <div id="phaser-container" className="w-full h-full flex items-center justify-center" />
+        <div className="w-full max-w-[min(90vw,600px)] aspect-square rounded-xl overflow-hidden shadow-2xl border-2 sm:border-4 border-slate-700 bg-white">
+            <div id="phaser-container" className="w-full h-full" />
         </div>
     );
 };
