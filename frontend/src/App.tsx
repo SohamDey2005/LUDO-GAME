@@ -83,7 +83,7 @@ function App() {
       {/* HUD Container */}
       <div className="flex flex-col items-center gap-4 sm:gap-8 bg-slate-800/50 p-6 sm:p-8 rounded-3xl backdrop-blur-md border border-slate-700 shadow-2xl w-full max-w-sm lg:max-w-xs xl:max-w-sm mb-8 lg:mb-0">
         <h1 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 tracking-tight">
-            LUDO AI
+            LUDO GAME
         </h1>
         
         <div className="w-full space-y-3 sm:space-y-4">
