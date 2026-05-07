@@ -10,8 +10,13 @@ function App() {
   const [isRolling, setIsRolling] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [clientId] = useState<string>(Math.random().toString(36).substring(7));
+  const [lastDiceValue, setLastDiceValue] = useState<number>(6);
 
   useEffect(() => {
+    if (gameState?.dice_value) {
+        setLastDiceValue(gameState.dice_value);
+    }
+  }, [gameState?.dice_value]);
     // Listen for real-time state updates
     socketManager.onUpdate((state) => {
         setGameState(state);
@@ -117,7 +122,7 @@ function App() {
         <div className="pt-3 sm:pt-4 border-t border-slate-700 w-full flex justify-center">
             <div className="flex flex-col items-center gap-3 sm:gap-4">
                 <Dice 
-                    value={gameState.dice_value || 6} 
+                    value={gameState.dice_value || lastDiceValue} 
                     isRolling={isRolling} 
                     disabled={gameState.dice_value !== null}
                     onRoll={handleRollDice} 

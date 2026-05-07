@@ -61,31 +61,12 @@ async def get_game_state(game_id: str):
         raise HTTPException(status_code=404, detail=str(e))
 
 @router.post("/{game_id}/roll", response_model=GameState)
-async def roll_dice(game_id: str, background_tasks: BackgroundTasks):
+async def roll_dice(game_id: str):
     try:
         game = get_game(game_id)
-        roll = GameEngine.roll_dice(game)
-        
-        # Check if no valid moves or if 3-sixes penalty triggered
-        valid_tokens = RulesEngine.get_valid_moves(game, game.current_turn, game.dice_value) if game.dice_value else []
-        is_penalty = game.consecutive_sixes == 3
-        
+        GameEngine.roll_dice(game)
         save_game(game)
         await manager.broadcast_game_state(game_id, game.model_dump(mode='json'))
-        
-        if not valid_tokens or is_penalty:
-            # Handle delayed skip
-            import asyncio
-            async def delayed_skip():
-                await asyncio.sleep(1.5)
-                # Re-fetch in case state changed
-                g = get_game(game_id)
-                GameEngine.next_turn(g)
-                save_game(g)
-                await manager.broadcast_game_state(game_id, g.model_dump(mode='json'))
-            
-            background_tasks.add_task(delayed_skip)
-            
         return game
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
@@ -113,19 +94,19 @@ async def move_token(game_id: str, request: MoveRequest):
         raise HTTPException(status_code=400, detail=str(e))
 
 @router.post("/{game_id}/ai-move", response_model=GameState)
-async def ai_move(game_id: str, background_tasks: BackgroundTasks):
+async def ai_move(game_id: str):
     try:
         game = get_game(game_id)
         if game.dice_value is None:
-            # Re-use the roll logic with delay
-            return await roll_dice(game_id, background_tasks)
+            GameEngine.roll_dice(game)
+            save_game(game)
+            await manager.broadcast_game_state(game_id, game.model_dump(mode='json'))
+            return game
             
         best_token_id = AIEngine.get_best_move(game, difficulty="hard")
         if best_token_id:
             GameEngine.move_token(game, best_token_id)
         else:
-            # No moves, should have been handled by roll_dice delay, 
-            # but safety fallback here
             GameEngine.next_turn(game)
             
         save_game(game)
