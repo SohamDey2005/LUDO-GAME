@@ -1,151 +1,103 @@
-# AI-Powered Web-Based Ludo Game
+# 🎲 LUDO GAME - Professional Web Edition
 
-A production-quality, full-stack Ludo game featuring real-time multiplayer, a modern React/Phaser frontend, and a highly scalable Python FastAPI backend powered by advanced AI logic.
+[![React](https://img.shields.io/badge/React-18-blue.svg)](https://reactjs.org/)
+[![Phaser](https://img.shields.io/badge/Phaser-3.8-orange.svg)](https://phaser.io/)
+[![FastAPI](https://img.shields.io/badge/FastAPI-0.109-green.svg)](https://fastapi.tiangolo.com/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)](https://www.typescriptlang.org/)
+
+A production-grade, full-stack Ludo game engine built for high-performance web play. Featuring **strict official rules**, **real-time multiplayer synchronization**, and **adaptive AI** with a stunning responsive UI.
 
 ---
 
-## 🎮 Features
-- **Standard Ludo Gameplay**: Complete ruleset including safe zones, capturing, home stretching, and exact-roll wins.
-- **Advanced AI Opponents**:
-  - **Easy**: Randomly selects valid moves.
-  - **Medium**: Heuristic-based, prioritizing captures, safe zones, and rapid advancement.
-  - **Hard**: Simplified Expectiminimax algorithm that penalizes moves placing tokens at high risk of capture.
-- **Real-time Multiplayer**: Powered by WebSockets for instant state synchronization across clients without polling.
-- **Modern UI/UX**: Built with React, Tailwind CSS, and Phaser 3 for stunning 60fps animations, responsive glassmorphism menus, and dynamic interactions.
-- **Data Persistence**: Automatic save/load system allowing games to survive server reboots, complete with global leaderboards.
+## ✨ Key Features
+
+### 🏆 Official Ruleset Implementation
+*   **Strict Board Entry**: Tokens enter the board ONLY on a roll of 6.
+*   **Token Stacking (Blocks)**: If a player occupies a cell with 2+ tokens, it forms a **BLOCK**. Opponents cannot land on, capture, or pass through blocks.
+*   **Rule 6 (3-Six Penalty)**: Rolling three consecutive sixes triggers a **full turn rollback**, restoring the board to its exact state before the turn began.
+*   **Capture Bonus**: Capturing an opponent's token (outside safe zones) grants an immediate bonus turn.
+*   **Exact Roll to Finish**: Tokens require a precise roll to reach the final home square.
+*   **Configurable Safe Zones**: 8 designated star-marked cells provide immunity from capture.
+
+### 🤖 Advanced AI Opponents
+*   **Heuristic Engine**: AI simulates multiple outcomes and scores moves based on risk, progress, and capture opportunities.
+*   **Three Difficulty Levels**: Choose between Easy (random), Medium (aggressive), and Hard (defensive/strategic).
+
+### 🌐 Real-time Multiplayer
+*   **WebSocket Sync**: Instant state broadcasts ensure every move is seen by all players at 60fps.
+*   **Cloud Persistence**: Games survive server restarts, allowing for high-availability deployments.
+*   **Fully Responsive**: Adapts seamlessly to mobile phones, tablets, and desktop monitors with touch-optimized controls.
 
 ---
 
 ## 🛠 Tech Stack
-- **Frontend**: React 18, TypeScript, Phaser 3, Tailwind CSS, Vite.
-- **Backend**: Python 3.11+, FastAPI, WebSockets, Pydantic, Uvicorn.
-- **Infrastructure**: Docker, ready for Google Cloud Run (Backend) and Vercel (Frontend).
+
+| Component | Technologies |
+| :--- | :--- |
+| **Frontend** | React 18, Phaser 3 (Engine), Tailwind CSS, Vite |
+| **Backend** | Python 3.11+, FastAPI, WebSockets (Pydantic models) |
+| **AI** | Custom Heuristic Simulation & Expectiminimax |
+| **Infrastructure** | Docker, Google Cloud Run, Vercel |
 
 ---
 
-## 📂 Project Structure
+## 📂 Project Architecture
 
 ```text
-ludo-web-ai/
-│
-├── frontend/                     # React + Phaser UI
-│   ├── public/                   # Static assets (Audio, Images)
+LUDO-GAME/
+├── frontend/                   # React UI & Phaser Graphics
 │   ├── src/
-│   │   ├── components/           # React UI components (Dice, App)
-│   │   ├── game/                 # Phaser game config
-│   │   ├── scenes/               # Phaser Scenes (LudoBoardScene)
-│   │   ├── services/             # API client, WebSocket manager, Audio manager
-│   │   └── main.tsx              # React entry point
-│   ├── package.json
-│   ├── vite.config.ts
-│   └── tailwind.config.js
-│
-├── backend/                      # FastAPI Server
+│   │   ├── scenes/             # Phaser Canvas Rendering (LudoBoardScene)
+│   │   ├── services/           # Socket & API orchestration
+│   │   └── components/         # React HUD & Menu components
+├── backend/                    # FastAPI High-Performance Server
 │   ├── app/
-│   │   ├── ai/                   # AI logic (Heuristics, Minimax)
-│   │   ├── api/                  # REST endpoints & WebSockets
-│   │   ├── core/                 # Pure game rules & Dice logic
-│   │   ├── models/               # Pydantic state models
-│   │   ├── services/             # Game engine orchestrator & DB store
-│   │   └── sockets/              # Connection Manager
-│   ├── tests/                    # Pytest suite
-│   ├── main.py                   # FastAPI entry point
-│   ├── requirements.txt
-│   ├── Dockerfile
-│   └── .dockerignore
-│
-└── README.md
+│   │   ├── core/               # Authoritative Rules Engine & Paths
+│   │   ├── ai/                 # Simulation & Heuristics
+│   │   ├── services/           # Game State & Orchestration
+│   └── tests/                  # Pytest Validation Suite
 ```
 
 ---
 
-## 💻 Local Development
+## 🚀 Getting Started
 
-### Backend Setup
-1. Open a terminal and navigate to the `backend` folder.
-2. Install Python dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
-3. Run the development server:
-   ```bash
-   uvicorn main:app --reload --host 0.0.0.0 --port 8000
-   ```
-   *The backend will be available at `http://localhost:8000`*
+### Prerequisites
+*   Node.js (v18+)
+*   Python (3.11+)
 
-### Frontend Setup
-1. Open a terminal and navigate to the `frontend` folder.
-2. Install Node.js dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the Vite development server:
-   ```bash
-   npm run dev
-   ```
-   *The frontend will be available at `http://localhost:3000`*
+### 1. Backend Setup
+```bash
+cd backend
+pip install -r requirements.txt
+uvicorn main:app --reload
+```
+
+### 2. Frontend Setup
+```bash
+cd frontend
+npm install
+npm run dev
+```
 
 ---
 
-## 🧠 AI Architecture
+## ☁️ Deployment
 
-The AI is built on a custom **Heuristic Evaluation Engine** (`backend/app/ai/heuristics.py`). 
-The AI does not mutate the active game; it deep-copies the board state, simulates the dice roll, and scores the resulting state using configured weights:
-- **Capture Enemy**: +100
-- **Reach Finish**: +200
-- **Reach Safe Zone**: +50
-- **Escape Danger**: +40
-- **Expose Token**: -60
+### Backend (Cloud Run)
+```bash
+cd backend
+gcloud run deploy ludo-backend --source . --platform managed --allow-unauthenticated
+```
 
-The **Hard AI** uses a simplified **Expectiminimax** approach (`backend/app/ai/engine.py`). After simulating its own move, it calculates a *Risk Penalty* by analyzing all opponent tokens that are 1-6 squares behind its new position. It deducts this risk probability from the heuristic score, forcing the AI to play defensively while still trying to win.
-
----
-
-## 🌐 Multiplayer & Sync Explanation
-
-We use a highly scalable **Hybrid REST/WebSocket Architecture**:
-1. **Actions (Writes)**: When a player rolls the dice or moves a token, the React frontend sends a standard `POST` request to the FastAPI REST endpoints. This ensures secure validation and makes rate-limiting easy.
-2. **Synchronization (Reads)**: The backend calculates the new game state, saves it, and instantly broadcasts the updated JSON down the **WebSocket** (`backend/app/sockets/manager.py`) to all clients in that specific Game Room. React receives this push event, updates state, and Phaser visually renders the new truth.
+### Frontend (Vercel)
+1. Push to your GitHub repo.
+2. Connect to Vercel.
+3. Set root directory to `frontend/`.
+4. Deploy!
 
 ---
 
-## 🚀 Cloud Deployment Guide
-
-### Deploying Backend to Google Cloud Run
-Cloud Run is perfect for our backend because it auto-scales stateless containers.
-
-1. Install the Google Cloud SDK (`gcloud`).
-2. Authenticate and set your project:
-   ```bash
-   gcloud auth login
-   gcloud config set project YOUR_PROJECT_ID
-   ```
-3. Deploy the container directly from the source:
-   ```bash
-   cd backend
-   gcloud run deploy ludo-backend \
-     --source . \
-     --platform managed \
-     --region us-central1 \
-     --allow-unauthenticated \
-     --port 8080
-   ```
-4. Note the deployed URL (e.g., `https://ludo-backend-xyz.run.app`). Update the `API_BASE` and WebSocket URL in `frontend/src/services/api.ts` and `socket.ts` to point to this new URL.
-
-### Deploying Frontend to Vercel
-Vercel is optimal for our Vite/React frontend.
-
-1. Push your complete repository to GitHub.
-2. Go to [Vercel.com](https://vercel.com) and click **Add New Project**.
-3. Import your GitHub repository.
-4. Set the **Root Directory** to `frontend`.
-5. Vercel will automatically detect Vite. Leave the build commands as default (`npm run build`).
-6. Click **Deploy**. Your frontend is now live!
-
----
-
-## 🔮 Future Improvements
-- **Database Migration**: Swap the lightweight `ludo_db.json` persistence layer in `store.py` for a managed PostgreSQL or Firebase instance.
-- **Authentication**: Add JWT-based user login to track long-term Elo rankings.
-- **Matchmaking Queues**: Implement a Redis-backed waiting queue for global matchmaking rather than direct room joining.
-- **Reinforcement Learning**: Upgrade the Hard AI by training a Neural Network via self-play (PPO/DQN) using the existing REST architecture to simulate millions of games.
+## 📄 License
+Created & Developed by **SOHAM DEY**. 
+Built for high-performance casual gaming and AI experimentation.
