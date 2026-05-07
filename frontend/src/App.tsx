@@ -107,9 +107,21 @@ function App() {
                 </div>
             )}
             
-            {gameState.winner && (
-                <div className="bg-green-500/20 text-green-300 p-2 sm:p-3 rounded-lg text-sm border border-green-500/50 font-bold text-center">
-                    Winner: {gameState.winner}!
+            {gameState.rankings && gameState.rankings.length > 0 && (
+                <div className="bg-slate-800/80 p-4 rounded-xl border border-slate-700 space-y-2">
+                    <h3 className="text-slate-300 text-[10px] font-bold uppercase tracking-[0.2em] mb-3">Leaderboard</h3>
+                    {gameState.rankings.map((color, index) => (
+                        <div key={color} className="flex items-center justify-between group">
+                            <div className="flex items-center gap-3">
+                                <span className={`text-xs font-bold ${index === 0 ? 'text-yellow-400' : index === 1 ? 'text-slate-300' : index === 2 ? 'text-amber-600' : 'text-slate-500'}`}>
+                                    {index + 1}{index === 0 ? 'st' : index === 1 ? 'nd' : index === 2 ? 'rd' : 'th'}
+                                </span>
+                                <div className="w-2 h-2 rounded-full shadow-[0_0_5px_rgba(255,255,255,0.3)]" style={{backgroundColor: color}}></div>
+                                <span className="text-white text-xs font-medium capitalize">{color} Player</span>
+                            </div>
+                            {index === 0 && <span className="text-[10px] bg-yellow-400/20 text-yellow-400 px-2 py-0.5 rounded-full font-bold uppercase tracking-tighter">Winner</span>}
+                        </div>
+                    ))}
                 </div>
             )}
         </div>

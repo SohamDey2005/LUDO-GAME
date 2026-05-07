@@ -22,6 +22,7 @@ export interface GameState {
     last_rolled_value: number;
     consecutive_sixes: number;
     winner: string | null;
+    rankings: string[];
     last_action: string | null;
     turn_order: string[];
 }
