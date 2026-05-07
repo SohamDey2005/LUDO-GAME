@@ -66,6 +66,7 @@ class GameState(BaseModel):
     current_turn: Optional[Color] = None
     status: GameStatus = GameStatus.WAITING
     dice_value: Optional[int] = None
+    last_roll: int = 6 # Persistent last roll for UI
     consecutive_sixes: int = 0
     winner: Optional[Color] = None
     rankings: List[Color] = [] # Order of finishing

@@ -80,6 +80,7 @@ class GameEngine:
 
         roll = Dice.roll()
         game_state.dice_value = roll
+        game_state.last_roll = roll
         game_state.last_action = f"Player {game_state.current_turn.value} rolled a {roll}."
 
         if roll == 6:
