@@ -123,15 +123,38 @@ export default class LudoBoardScene extends Phaser.Scene {
 
     private drawArrow(x: number, y: number, color: number, direction: string) {
         const g = this.add.graphics();
-        g.fillStyle(color, 1); g.lineStyle(1, 0x000000, 1);
+        g.fillStyle(color, 1);
+        g.lineStyle(1, 0x000000, 1);
+        
         const size = this.cellSize * 0.3;
-        g.save(); g.translate(x, y);
-        if (direction === 'down') g.rotate(0);
-        if (direction === 'right') g.rotate(-Math.PI / 2);
-        if (direction === 'up') g.rotate(Math.PI);
-        if (direction === 'left') g.rotate(Math.PI / 2);
-        g.beginPath(); g.moveTo(-size/2, -size); g.lineTo(size/2, -size); g.lineTo(size/2, 0); g.lineTo(size, 0); g.lineTo(0, size); g.lineTo(-size, 0); g.lineTo(-size/2, 0); g.closePath();
-        g.fillPath(); g.strokePath(); g.restore();
+        
+        // Define arrow points relative to center (0,0) pointing down
+        let points = [
+            {x: -size/2, y: -size},
+            {x: size/2, y: -size},
+            {x: size/2, y: 0},
+            {x: size, y: 0},
+            {x: 0, y: size},
+            {x: -size, y: 0},
+            {x: -size/2, y: 0}
+        ];
+
+        // Rotate points based on direction
+        const rotatedPoints = points.map(p => {
+            if (direction === 'right') return { x: -p.y, y: p.x };
+            if (direction === 'up') return { x: -p.x, y: -p.y };
+            if (direction === 'left') return { x: p.y, y: -p.x };
+            return p; // down
+        });
+
+        g.beginPath();
+        g.moveTo(x + rotatedPoints[0].x, y + rotatedPoints[0].y);
+        for (let i = 1; i < rotatedPoints.length; i++) {
+            g.lineTo(x + rotatedPoints[i].x, y + rotatedPoints[i].y);
+        }
+        g.closePath();
+        g.fillPath();
+        g.strokePath();
     }
 
     private onUpdateGameState(gameState: any) {
