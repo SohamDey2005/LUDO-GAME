@@ -2,6 +2,8 @@ from typing import List, Optional, Union, Dict
 from app.models.game import GameState, Token, Color, TokenStatus
 from app.core.paths import get_absolute_cell_id, get_full_path_for_color
 
+SAFE_SQUARES_ABSOLUTE = [0, 8, 13, 21, 26, 34, 39, 47]
+
 class RulesEngine:
     @staticmethod
     def get_valid_moves(game_state: GameState, player_color: Color, dice_value: int) -> List[Token]:
