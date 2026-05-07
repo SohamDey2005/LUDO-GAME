@@ -17,6 +17,8 @@ function App() {
         setLastDiceValue(gameState.dice_value);
     }
   }, [gameState?.dice_value]);
+
+  useEffect(() => {
     // Listen for real-time state updates
     socketManager.onUpdate((state) => {
         setGameState(state);
