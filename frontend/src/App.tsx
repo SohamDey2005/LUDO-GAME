@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import PhaserGameComponent from './components/PhaserGameComponent';
 import Dice from './components/Dice';
+import Footer from './components/Footer';
 import { createGame, rollDice, moveToken, GameState } from './services/api';
 import { socketManager } from './services/socket';
 import { audioManager } from './services/audio';
@@ -78,60 +79,62 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row items-center justify-center gap-12 p-8 bg-gradient-to-br from-slate-900 to-slate-800">
-      
-      <div className="flex flex-col items-center gap-8 bg-slate-800/50 p-8 rounded-3xl backdrop-blur-md border border-slate-700 shadow-2xl w-full max-w-sm">
-        <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 tracking-tight">
-            LUDO AI
-        </h1>
-        
-        <div className="w-full space-y-4">
-            <div className="bg-slate-700/50 p-4 rounded-xl border border-slate-600">
-                <h3 className="text-slate-300 text-xs font-bold uppercase tracking-wider mb-2">Current Turn</h3>
-                <div className="flex items-center gap-3">
-                    <div className={`w-4 h-4 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]`} style={{backgroundColor: gameState.current_turn}}></div>
-                    <span className="text-white font-medium capitalize">{gameState.current_turn} Player</span>
-                </div>
-            </div>
+    <div className="min-h-screen flex flex-col items-center justify-center gap-12 p-8 bg-gradient-to-br from-slate-900 to-slate-800">
+      <div className="flex flex-col md:flex-row items-center justify-center gap-12">
+        <div className="flex flex-col items-center gap-8 bg-slate-800/50 p-8 rounded-3xl backdrop-blur-md border border-slate-700 shadow-2xl w-full max-w-sm">
+          <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 tracking-tight">
+              LUDO AI
+          </h1>
+          
+          <div className="w-full space-y-4">
+              <div className="bg-slate-700/50 p-4 rounded-xl border border-slate-600">
+                  <h3 className="text-slate-300 text-xs font-bold uppercase tracking-wider mb-2">Current Turn</h3>
+                  <div className="flex items-center gap-3">
+                      <div className={`w-4 h-4 rounded-full shadow-[0_0_10px_rgba(255,255,255,0.5)]`} style={{backgroundColor: gameState.current_turn}}></div>
+                      <span className="text-white font-medium capitalize">{gameState.current_turn} Player</span>
+                  </div>
+              </div>
 
-            {gameState.last_action && (
-                <div className="bg-slate-800/80 p-3 rounded-lg text-sm text-slate-300 border border-slate-700">
-                    {gameState.last_action}
-                </div>
-            )}
-            
-            {error && (
-                <div className="bg-red-500/20 text-red-300 p-3 rounded-lg text-sm border border-red-500/50">
-                    {error}
-                </div>
-            )}
-            
-            {gameState.winner && (
-                <div className="bg-green-500/20 text-green-300 p-3 rounded-lg text-sm border border-green-500/50 font-bold">
-                    Winner: {gameState.winner}!
-                </div>
-            )}
+              {gameState.last_action && (
+                  <div className="bg-slate-800/80 p-3 rounded-lg text-sm text-slate-300 border border-slate-700">
+                      {gameState.last_action}
+                  </div>
+              )}
+              
+              {error && (
+                  <div className="bg-red-500/20 text-red-300 p-3 rounded-lg text-sm border border-red-500/50">
+                      {error}
+                  </div>
+              )}
+              
+              {gameState.winner && (
+                  <div className="bg-green-500/20 text-green-300 p-3 rounded-lg text-sm border border-green-500/50 font-bold">
+                      Winner: {gameState.winner}!
+                  </div>
+              )}
+          </div>
+
+          <div className="pt-4 border-t border-slate-700 w-full flex justify-center">
+              <div className="flex flex-col items-center gap-4">
+                  <Dice 
+                      value={gameState.dice_value || 6} 
+                      isRolling={isRolling} 
+                      disabled={gameState.dice_value !== null}
+                      onRoll={handleRollDice} 
+                  />
+                  {gameState.dice_value !== null && !isRolling && (
+                      <span className="text-blue-400 font-bold animate-pulse text-sm">
+                          Select a token to move!
+                      </span>
+                  )}
+              </div>
+          </div>
         </div>
 
-        <div className="pt-4 border-t border-slate-700 w-full flex justify-center">
-            <div className="flex flex-col items-center gap-4">
-                <Dice 
-                    value={gameState.dice_value || 6} 
-                    isRolling={isRolling} 
-                    disabled={gameState.dice_value !== null}
-                    onRoll={handleRollDice} 
-                />
-                {gameState.dice_value !== null && !isRolling && (
-                    <span className="text-blue-400 font-bold animate-pulse text-sm">
-                        Select a token to move!
-                    </span>
-                )}
-            </div>
-        </div>
+        <PhaserGameComponent gameState={gameState} onTokenClick={handleTokenClick} />
       </div>
 
-      <PhaserGameComponent gameState={gameState} onTokenClick={handleTokenClick} />
-      
+      <Footer />
     </div>
   );
 }
