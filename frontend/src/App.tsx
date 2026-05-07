@@ -117,7 +117,7 @@ function App() {
         <div className="pt-3 sm:pt-4 border-t border-slate-700 w-full flex justify-center">
             <div className="flex flex-col items-center gap-3 sm:gap-4">
                 <Dice 
-                    value={gameState.last_roll} 
+                    value={gameState.last_roll || gameState.dice_value || 6} 
                     isRolling={isRolling} 
                     disabled={gameState.dice_value !== null}
                     onRoll={handleRollDice} 
