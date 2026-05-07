@@ -163,7 +163,9 @@ export default class LudoBoardScene extends Phaser.Scene {
                 let ox = 0, oy = 0;
                 if (group.length > 1 && !cellId.startsWith('base')) {
                     const angle = (i / group.length) * Math.PI * 2;
-                    const r = this.cellSize * 0.2; ox = Math.cos(angle) * r; oy = Math.sin(angle) * r;
+                    // Dynamically increase radius if more than 4 tokens are present
+                    const baseRadius = this.cellSize * (group.length > 4 ? 0.3 : 0.2);
+                    ox = Math.cos(angle) * baseRadius; oy = Math.sin(angle) * baseRadius;
                 }
                 const radius = this.cellSize * (group.length > 1 ? 0.25 : 0.35);
                 const sprite = this.add.circle(

@@ -71,13 +71,12 @@ class RulesEngine:
 
     @staticmethod
     def is_cell_blocked(game_state: GameState, cell_id: Union[int, str], moving_player_color: Color) -> bool:
-        """A cell is blocked if it has 2+ tokens of a SINGLE opponent color."""
-        # Perimeter indices (0-51) are the only ones that can be blocked usually, 
-        # but let's be generic.
-        
-        # Safe zones allow multiple players but Rule 10 says blocks block movement.
-        # "multiple players may occupy safe zones" (Rule 9)
-        
+        """A cell is blocked if it has 2+ tokens of a SINGLE opponent color, UNLESS it's a safe zone."""
+        # Rule 9: Safe zones allow multiple players and typically don't allow blocking
+        if game_state.config.safe_zones_enabled:
+            if isinstance(cell_id, int) and cell_id in game_state.config.safe_squares:
+                return False
+
         tokens_on_cell = RulesEngine.get_tokens_on_cell(game_state, cell_id)
         
         # Group by color
