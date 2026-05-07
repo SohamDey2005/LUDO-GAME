@@ -157,10 +157,7 @@ export default class LudoBoardScene extends Phaser.Scene {
             });
         });
 
-        const movableTokenIds = gameState.dice_value ? 
-            gameState.players[gameState.current_turn]?.tokens
-                .filter((t: any) => RulesEngine.is_valid_move(gameState, t, gameState.dice_value))
-                .map((t: any) => t.id) : [];
+        const movableTokenIds = gameState.movable_tokens || [];
 
         Object.entries(cellGroups).forEach(([cellId, group]) => {
             group.forEach((item, i) => {
