@@ -1,4 +1,4 @@
-from typing import Optional, Dict
+from typing import Optional, Dict, List
 import uuid
 import json
 
@@ -38,6 +38,7 @@ class GameEngine:
             raise ValueError("Not enough players to start")
         
         game_state.status = GameStatus.IN_PROGRESS
+        game_state.rankings = []
         
         # Find the first available color in turn order
         for color in game_state.turn_order:
@@ -51,7 +52,6 @@ class GameEngine:
     @staticmethod
     def take_turn_snapshot(game_state: GameState) -> None:
         """Takes a snapshot of the current player states to allow rollback."""
-        # We only need to store the players and their token positions
         snapshot = {
             "players": {color.value: player.dict() for color, player in game_state.players.items()}
         }
@@ -64,7 +64,6 @@ class GameEngine:
             return
             
         snapshot = game_state.turn_snapshot
-        # Restore players
         for color_val, player_data in snapshot["players"].items():
             color = Color(color_val)
             game_state.players[color] = Player.parse_obj(player_data)
@@ -86,7 +85,6 @@ class GameEngine:
         if roll == 6:
             game_state.consecutive_sixes += 1
             if game_state.consecutive_sixes == 3:
-                # Rule 6: 3 consecutive sixes = forfeit turn AND rollback
                 game_state.last_action += " Three consecutive sixes! penalty triggered."
                 GameEngine.rollback_turn(game_state)
                 GameEngine.next_turn(game_state)
@@ -94,7 +92,6 @@ class GameEngine:
         else:
             game_state.consecutive_sixes = 0
 
-        # Check if any valid moves exist
         valid_tokens = RulesEngine.get_valid_moves(game_state, game_state.current_turn, game_state.dice_value)
         if not valid_tokens:
             game_state.last_action += " No valid moves available."
@@ -113,16 +110,13 @@ class GameEngine:
         current_color = game_state.current_turn
         player = game_state.players[current_color]
         
-        # Find token
         token_to_move = next((t for t in player.tokens if t.id == token_id), None)
         if not token_to_move:
             raise ValueError("Token not found")
 
-        # Validate move
         if not RulesEngine.is_valid_move(game_state, token_to_move, game_state.dice_value):
             raise ValueError("Invalid move")
 
-        # Execute move
         if token_to_move.status == TokenStatus.BASE:
             token_to_move.status = TokenStatus.ACTIVE
             token_to_move.position = 0
@@ -135,34 +129,42 @@ class GameEngine:
             else:
                 game_state.last_action = f"Player {current_color.value} moved token {token_id} to {token_to_move.position}."
 
-        # Check for capture
         captured_token = RulesEngine.check_capture(game_state, token_to_move)
         if captured_token:
             captured_token.status = TokenStatus.BASE
             captured_token.position = -1
             game_state.last_action += f" Captured {captured_token.color.value} token!"
 
-        # Check win condition
+        # Check if the player finished all tokens
         if RulesEngine.check_win_condition(game_state, current_color):
-            game_state.status = GameStatus.FINISHED
-            game_state.winner = current_color
-            game_state.last_action += f" Player {current_color.value} wins!"
-            return
+            if current_color not in game_state.rankings:
+                game_state.rankings.append(current_color)
+                game_state.last_action += f" Player {current_color.value} has finished!"
+                if not game_state.winner:
+                    game_state.winner = current_color
 
-        # Advance turn
+            # Check if game should end (only one player left who hasn't finished)
+            active_players = [c for c in game_state.players.keys() if c not in game_state.rankings]
+            if len(active_players) <= 1:
+                if active_players:
+                    game_state.rankings.append(active_players[0])
+                game_state.status = GameStatus.FINISHED
+                game_state.last_action += " All rankings determined! Game Over."
+                return
+
         token_finished = token_to_move.status == TokenStatus.FINISHED
         
         if (game_state.config.bonus_turn_on_six and game_state.dice_value == 6) or \
            (game_state.config.bonus_turn_on_capture and captured_token is not None) or \
            (game_state.config.bonus_turn_on_finish and token_finished):
-            game_state.dice_value = None # Reset dice for extra roll
+            game_state.dice_value = None 
             game_state.last_action += " Extra turn!"
         else:
             GameEngine.next_turn(game_state)
 
     @staticmethod
     def next_turn(game_state: GameState) -> None:
-        """Advances the game to the next player's turn."""
+        """Advances the game to the next player's turn, skipping finished players."""
         game_state.dice_value = None
         game_state.consecutive_sixes = 0
 
@@ -170,9 +172,9 @@ class GameEngine:
         for i in range(1, 5):
             next_idx = (current_idx + i) % 4
             next_color = game_state.turn_order[next_idx]
-            if next_color in game_state.players:
+            # Skip players who are not in the game or have already finished
+            if next_color in game_state.players and next_color not in game_state.rankings:
                 game_state.current_turn = next_color
                 break
         
-        # Take snapshot for the new turn
         GameEngine.take_turn_snapshot(game_state)

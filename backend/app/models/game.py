@@ -68,6 +68,7 @@ class GameState(BaseModel):
     dice_value: Optional[int] = None
     consecutive_sixes: int = 0
     winner: Optional[Color] = None
+    rankings: List[Color] = [] # Order of finishing
     last_action: Optional[str] = None
     turn_snapshot: Optional[Dict] = None # For Rule 6 rollback
     
