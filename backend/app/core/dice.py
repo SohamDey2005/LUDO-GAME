@@ -4,4 +4,4 @@ class Dice:
     @staticmethod
     def roll() -> int:
         """Rolls a 6-sided die and returns the result."""
-        return 6
+        return random.randint(1, 6)
