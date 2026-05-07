@@ -1,5 +1,6 @@
 from typing import Optional, Dict
 import uuid
+import json
 
 from app.models.game import GameState, GameStatus, Color, Player, PlayerType, Token, TokenStatus
 from app.core.dice import Dice
@@ -43,6 +44,32 @@ class GameEngine:
             if color in game_state.players:
                 game_state.current_turn = color
                 break
+        
+        # Take initial snapshot
+        GameEngine.take_turn_snapshot(game_state)
+
+    @staticmethod
+    def take_turn_snapshot(game_state: GameState) -> None:
+        """Takes a snapshot of the current player states to allow rollback."""
+        # We only need to store the players and their token positions
+        snapshot = {
+            "players": {color.value: player.dict() for color, player in game_state.players.items()}
+        }
+        game_state.turn_snapshot = snapshot
+
+    @staticmethod
+    def rollback_turn(game_state: GameState) -> None:
+        """Restores the game state from the turn snapshot."""
+        if not game_state.turn_snapshot:
+            return
+            
+        snapshot = game_state.turn_snapshot
+        # Restore players
+        for color_val, player_data in snapshot["players"].items():
+            color = Color(color_val)
+            game_state.players[color] = Player.parse_obj(player_data)
+            
+        game_state.last_action += " TURN ROLLED BACK TO START."
 
     @staticmethod
     def roll_dice(game_state: GameState) -> int:
@@ -59,8 +86,9 @@ class GameEngine:
         if roll == 6:
             game_state.consecutive_sixes += 1
             if game_state.consecutive_sixes == 3:
-                # Rule 6: 3 consecutive sixes = forfeit turn
-                game_state.last_action += " Three consecutive sixes! Turn forfeited."
+                # Rule 6: 3 consecutive sixes = forfeit turn AND rollback
+                game_state.last_action += " Three consecutive sixes! penalty triggered."
+                GameEngine.rollback_turn(game_state)
                 GameEngine.next_turn(game_state)
                 return roll
         else:
@@ -122,7 +150,6 @@ class GameEngine:
             return
 
         # Advance turn
-        # Rule 5 & 11: Extra turn on 6 or capture
         if (game_state.config.bonus_turn_on_six and game_state.dice_value == 6) or \
            (game_state.config.bonus_turn_on_capture and captured_token is not None):
             game_state.dice_value = None # Reset dice for extra roll
@@ -143,3 +170,6 @@ class GameEngine:
             if next_color in game_state.players:
                 game_state.current_turn = next_color
                 break
+        
+        # Take snapshot for the new turn
+        GameEngine.take_turn_snapshot(game_state)
