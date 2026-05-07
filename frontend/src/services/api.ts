@@ -19,6 +19,7 @@ export interface GameState {
     current_turn: string;
     status: 'waiting' | 'in_progress' | 'finished';
     dice_value: number | null;
+    last_rolled_value: number;
     consecutive_sixes: number;
     winner: string | null;
     last_action: string | null;
