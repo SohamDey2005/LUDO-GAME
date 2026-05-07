@@ -1,0 +1,94 @@
+from app.models.game import GameState, Token, Color, TokenStatus
+from app.core.rules import RulesEngine, SAFE_SQUARES_ABSOLUTE
+
+class HeuristicWeights:
+    CAPTURE_ENEMY = 100
+    REACH_FINISH = 200
+    REACH_SAFE_ZONE = 50
+    ESCAPE_DANGER = 40
+    EXPOSE_TOKEN = -60
+    ADVANCE_TOWARD_FINISH = 30 # Base value, multiplied by distance
+
+class Evaluator:
+    @staticmethod
+    def evaluate_move(game_state: GameState, token_id: str, dice_value: int) -> float:
+        """
+        Evaluates the potential score of moving a specific token.
+        Higher score means a better move.
+        """
+        player = game_state.players[game_state.current_turn]
+        token = next((t for t in player.tokens if t.id == token_id), None)
+        if not token:
+            return -1000
+
+        score = 0
+        current_abs_pos = token.get_absolute_position()
+        
+        # Determine if currently in danger
+        was_in_danger = Evaluator.is_in_danger(game_state, token)
+
+        # Simulate move
+        projected_pos = token.position + (dice_value if token.status == TokenStatus.ACTIVE else 0)
+        if token.status == TokenStatus.BASE:
+            projected_pos = 0 # Enters board
+
+        # Advance score (encourage moving tokens closer to finish)
+        score += (projected_pos / 56.0) * HeuristicWeights.ADVANCE_TOWARD_FINISH
+
+        if projected_pos == 56:
+            score += HeuristicWeights.REACH_FINISH
+            return score # Best possible move outcome
+
+        # Create a dummy token for simulated absolute position checking
+        sim_token = Token(id="sim", color=token.color, position=projected_pos, status=TokenStatus.ACTIVE)
+        sim_abs_pos = sim_token.get_absolute_position()
+
+        # Check Capture
+        if sim_abs_pos != -1 and sim_abs_pos not in SAFE_SQUARES_ABSOLUTE:
+            # Check if we land on an enemy
+            for c, p in game_state.players.items():
+                if c != token.color:
+                    for t in p.tokens:
+                        if t.status == TokenStatus.ACTIVE and t.get_absolute_position() == sim_abs_pos:
+                            score += HeuristicWeights.CAPTURE_ENEMY
+                            break
+
+        # Check Safe Zone
+        if sim_abs_pos in SAFE_SQUARES_ABSOLUTE:
+            score += HeuristicWeights.REACH_SAFE_ZONE
+
+        # Danger Evaluation
+        is_in_danger_now = Evaluator.is_in_danger_at_pos(game_state, sim_token)
+        
+        if was_in_danger and not is_in_danger_now:
+            score += HeuristicWeights.ESCAPE_DANGER
+        elif not was_in_danger and is_in_danger_now:
+            score += HeuristicWeights.EXPOSE_TOKEN
+
+        return score
+
+    @staticmethod
+    def is_in_danger(game_state: GameState, token: Token) -> bool:
+        if token.status != TokenStatus.ACTIVE:
+            return False
+        return Evaluator.is_in_danger_at_pos(game_state, token)
+
+    @staticmethod
+    def is_in_danger_at_pos(game_state: GameState, token: Token) -> bool:
+        abs_pos = token.get_absolute_position()
+        if abs_pos == -1 or abs_pos in SAFE_SQUARES_ABSOLUTE:
+            return False
+
+        # Simple danger check: Is any opponent within 6 squares behind us?
+        for c, p in game_state.players.items():
+            if c != token.color:
+                for t in p.tokens:
+                    if t.status == TokenStatus.ACTIVE:
+                        enemy_pos = t.get_absolute_position()
+                        if enemy_pos != -1:
+                            # Calculate distance enemy has to travel to reach us
+                            # Since board is 52 squares perimeter
+                            dist = (abs_pos - enemy_pos) % 52
+                            if 1 <= dist <= 6:
+                                return True
+        return False
