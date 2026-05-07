@@ -25,7 +25,7 @@ export interface GameState {
     turn_order: string[];
 }
 
-const API_BASE = 'http://localhost:8000/api/game';
+const API_BASE = 'https://ludo-backend-175911647281.us-central1.run.app/api/game';
 
 export const createGame = async (): Promise<GameState> => {
     const res = await fetch(`${API_BASE}/create`, { method: 'POST' });

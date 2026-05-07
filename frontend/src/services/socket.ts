@@ -7,7 +7,7 @@ export class SocketManager {
             this.socket.close();
         }
         
-        const wsUrl = `ws://localhost:8000/ws/game/${gameId}/${clientId}`;
+        const wsUrl = `wss://ludo-backend-175911647281.us-central1.run.app/ws/game/${gameId}/${clientId}`;
         this.socket = new WebSocket(wsUrl);
 
         this.socket.onmessage = (event) => {
