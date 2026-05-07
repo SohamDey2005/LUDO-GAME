@@ -87,16 +87,13 @@ class GameEngine:
             if game_state.consecutive_sixes == 3:
                 game_state.last_action += " Three consecutive sixes! penalty triggered."
                 GameEngine.rollback_turn(game_state)
-                GameEngine.next_turn(game_state)
+                # Note: We don't call next_turn here, we let the API handle the delay/forfeit
                 return roll
         else:
             game_state.consecutive_sixes = 0
 
-        valid_tokens = RulesEngine.get_valid_moves(game_state, game_state.current_turn, game_state.dice_value)
-        if not valid_tokens:
-            game_state.last_action += " No valid moves available."
-            GameEngine.next_turn(game_state)
-
+        # We don't call next_turn here anymore to allow the UI to show the roll
+        # even if no moves are available.
         return roll
 
     @staticmethod
@@ -143,7 +140,7 @@ class GameEngine:
                 if not game_state.winner:
                     game_state.winner = current_color
 
-            # Check if game should end (only one player left who hasn't finished)
+            # Check if game should end
             active_players = [c for c in game_state.players.keys() if c not in game_state.rankings]
             if len(active_players) <= 1:
                 if active_players:
@@ -172,7 +169,6 @@ class GameEngine:
         for i in range(1, 5):
             next_idx = (current_idx + i) % 4
             next_color = game_state.turn_order[next_idx]
-            # Skip players who are not in the game or have already finished
             if next_color in game_state.players and next_color not in game_state.rankings:
                 game_state.current_turn = next_color
                 break
