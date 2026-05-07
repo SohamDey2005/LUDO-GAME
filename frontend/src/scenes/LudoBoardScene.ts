@@ -132,16 +132,17 @@ export default class LudoBoardScene extends Phaser.Scene {
                     const sprite = this.add.circle(
                         coords.x * this.cellSize + this.cellSize/2, 
                         coords.y * this.cellSize + this.cellSize/2, 
-                        0, // Start radius at 0 for animation
+                        this.cellSize * 0.35, // Start with full radius for hitbox
                         colorCode
                     );
                     sprite.setStrokeStyle(2, 0xffffff);
-                    sprite.setInteractive();
+                    sprite.setScale(0); // Start at scale 0 for animation
+                    sprite.setInteractive(new Phaser.Geom.Circle(0, 0, this.cellSize * 0.35), Phaser.Geom.Circle.Contains);
                     
-                    // Entry animation (Tween)
+                    // Entry animation (Scale Tween instead of Radius)
                     this.tweens.add({
                         targets: sprite,
-                        radius: this.cellSize * 0.35,
+                        scale: 1,
                         duration: 300,
                         ease: 'Back.easeOut'
                     });
