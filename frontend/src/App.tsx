@@ -122,6 +122,19 @@ function App() {
                     disabled={gameState.dice_value !== null}
                     onRoll={handleRollDice} 
                 />
+                
+                {/* Debug Tools */}
+                <div className="flex flex-col items-center gap-2 mt-4">
+                    <button 
+                        onClick={async () => {
+                            await fetch(`https://ludo-backend-175911647281.us-central1.run.app/api/game/${gameState.id}/force-roll/6`, { method: 'POST' });
+                        }}
+                        className="text-[10px] text-slate-500 hover:text-blue-400 border border-slate-700 px-2 py-1 rounded transition-colors"
+                    >
+                        DEBUG: Force 6
+                    </button>
+                </div>
+
                 {gameState.dice_value !== null && !isRolling && (
                     <span className="text-blue-400 font-bold animate-pulse text-[11px] sm:text-sm">
                         Select a token to move!
