@@ -10,5 +10,5 @@ class GameConfig(BaseModel):
     bonus_turn_on_six: bool = True
     safe_zones_enabled: bool = True
     # Define which absolute squares are safe (0-51)
-    # 2, 15, 28, 41 are the 4 star-marked squares in the final clockwise layout.
-    safe_squares: List[int] = [2, 15, 28, 41]
+    # 0, 13, 26, 39 are starting squares. 8, 21, 34, 47 are other star-marked squares.
+    safe_squares: List[int] = [0, 8, 13, 21, 26, 34, 39, 47]

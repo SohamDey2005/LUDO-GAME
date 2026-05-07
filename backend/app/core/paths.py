@@ -1,14 +1,12 @@
 from typing import List, Dict, Union
 from app.models.game import Color
 
-# Aligned with LudoBoardScene.ts (Clockwise from Top-Left Red)
-# Red enters at index 1 (6, 1), Blue at index 14 (1, 8), 
-# Yellow at index 27 (8, 13), Green at index 40 (13, 6)
+# Aligned with LudoBoardScene.ts (Clockwise from Top-Left Green)
 START_SQUARES = {
-    Color.RED: 1,
-    Color.BLUE: 14,
-    Color.YELLOW: 27,
-    Color.GREEN: 40
+    Color.GREEN: 0,
+    Color.YELLOW: 13,
+    Color.BLUE: 26,
+    Color.RED: 39
 }
 
 def get_full_path_for_color(color: Color) -> List[Union[int, str]]:

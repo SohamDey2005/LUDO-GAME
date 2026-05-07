@@ -1,43 +1,43 @@
 import * as Phaser from 'phaser';
 
 // Exact Clockwise Perimeter Mapping (52 squares)
-// Starting from Top-Left arm, moving DOWN, LEFT, UP, RIGHT
+// Starting from Green Start (1, 6)
 const pathCoords = [
-    {x:6,y:0}, {x:6,y:1}, {x:6,y:2}, {x:6,y:3}, {x:6,y:4}, {x:6,y:5}, // Red arm down
-    {x:5,y:6}, {x:4,y:6}, {x:3,y:6}, {x:2,y:6}, {x:1,y:6}, {x:0,y:6}, // Left arm left
-    {x:0,y:7}, 
-    {x:0,y:8}, {x:1,y:8}, {x:2,y:8}, {x:3,y:8}, {x:4,y:8}, {x:5,y:8}, // Left arm right
-    {x:6,y:9}, {x:6,y:10}, {x:6,y:11}, {x:6,y:12}, {x:6,y:13}, {x:6,y:14}, // Bottom arm down
+    {x:1,y:6}, {x:2,y:6}, {x:3,y:6}, {x:4,y:6}, {x:5,y:6}, 
+    {x:6,y:5}, {x:6,y:4}, {x:6,y:3}, {x:6,y:2}, {x:6,y:1}, {x:6,y:0}, 
+    {x:7,y:0}, 
+    {x:8,y:0}, {x:8,y:1}, {x:8,y:2}, {x:8,y:3}, {x:8,y:4}, {x:8,y:5}, 
+    {x:9,y:6}, {x:10,y:6}, {x:11,y:6}, {x:12,y:6}, {x:13,y:6}, {x:14,y:6}, 
+    {x:14,y:7}, 
+    {x:14,y:8}, {x:13,y:8}, {x:12,y:8}, {x:11,y:8}, {x:10,y:8}, {x:9,y:8}, 
+    {x:8,y:9}, {x:8,y:10}, {x:8,y:11}, {x:8,y:12}, {x:8,y:13}, {x:8,y:14}, 
     {x:7,y:14}, 
-    {x:8,y:14}, {x:8,y:13}, {x:8,y:12}, {x:8,y:11}, {x:8,y:10}, {x:8,y:9}, // Bottom arm up
-    {x:9,y:8}, {x:10,y:8}, {x:11,y:8}, {x:12,y:8}, {x:13,y:8}, {x:14,y:8}, // Right arm right
-    {x:14,y:7},
-    {x:14,y:6}, {x:13,y:6}, {x:12,y:6}, {x:11,y:6}, {x:10,y:6}, {x:9,y:6}, // Right arm left
-    {x:8,y:5}, {x:8,y:4}, {x:8,y:3}, {x:8,y:2}, {x:8,y:1}, {x:8,y:0}, // Top arm up
-    {x:7,y:0}
+    {x:6,y:14}, {x:6,y:13}, {x:6,y:12}, {x:6,y:11}, {x:6,y:10}, {x:6,y:9}, 
+    {x:5,y:8}, {x:4,y:8}, {x:3,y:8}, {x:2,y:8}, {x:1,y:8}, {x:0,y:8}, 
+    {x:0,y:7}, {x:0,y:6}
 ];
 
 const START_SQUARES_MAP = {
-    red: 1,
-    blue: 14,
-    yellow: 27,
-    green: 40
+    green: 0,
+    yellow: 13,
+    blue: 26,
+    red: 39
 };
 
-const STAR_INDICES = [2, 15, 28, 41];
+const SAFE_ZONE_INDICES = [0, 8, 13, 21, 26, 34, 39, 47];
 
 const homePaths: Record<string, {x:number, y:number}[]> = {
-    red: [{x:7,y:1},{x:7,y:2},{x:7,y:3},{x:7,y:4},{x:7,y:5}],
-    blue: [{x:1,y:7},{x:2,y:7},{x:3,y:7},{x:4,y:7},{x:5,y:7}],
-    yellow: [{x:7,y:13},{x:7,y:12},{x:7,y:11},{x:7,y:10},{x:7,y:9}],
-    green: [{x:13,y:7},{x:12,y:7},{x:11,y:7},{x:10,y:7},{x:9,y:7}]
+    green: [{x:1,y:7},{x:2,y:7},{x:3,y:7},{x:4,y:7},{x:5,y:7}], 
+    yellow: [{x:7,y:1},{x:7,y:2},{x:7,y:3},{x:7,y:4},{x:7,y:5}],
+    blue: [{x:13,y:7},{x:12,y:7},{x:11,y:7},{x:10,y:7},{x:9,y:7}],
+    red: [{x:7,y:13},{x:7,y:12},{x:7,y:11},{x:7,y:10},{x:7,y:9}]
 };
 
 const baseSpots: Record<string, {x:number, y:number}[]> = {
-    red: [{x:1.5,y:1.5}, {x:3.5,y:1.5}, {x:1.5,y:3.5}, {x:3.5,y:3.5}],
-    green: [{x:10.5,y:1.5}, {x:12.5,y:1.5}, {x:10.5,y:3.5}, {x:12.5,y:3.5}],
-    yellow: [{x:10.5,y:10.5}, {x:12.5,y:10.5}, {x:10.5,y:12.5}, {x:12.5,y:12.5}],
-    blue: [{x:1.5,y:10.5}, {x:3.5,y:10.5}, {x:1.5,y:12.5}, {x:3.5,y:12.5}]
+    green: [{x:1.5,y:1.5}, {x:3.5,y:1.5}, {x:1.5,y:3.5}, {x:3.5,y:3.5}],
+    yellow: [{x:10.5,y:1.5}, {x:12.5,y:1.5}, {x:10.5,y:3.5}, {x:12.5,y:3.5}],
+    blue: [{x:10.5,y:10.5}, {x:12.5,y:10.5}, {x:10.5,y:12.5}, {x:12.5,y:12.5}],
+    red: [{x:1.5,y:10.5}, {x:3.5,y:10.5}, {x:1.5,y:12.5}, {x:3.5,y:12.5}]
 };
 
 export default class LudoBoardScene extends Phaser.Scene {
@@ -56,7 +56,7 @@ export default class LudoBoardScene extends Phaser.Scene {
         graphics.fillStyle(0xffffff, 1);
         graphics.fillRect(0, 0, boardSize, boardSize);
 
-        const colors = { red: 0xff0000, green: 0x2ecc40, yellow: 0xffdc00, blue: 0x0074d9, white: 0xffffff };
+        const colors = { red: 0xff4136, green: 0x2ecc40, yellow: 0xffdc00, blue: 0x0074d9, white: 0xffffff };
 
         const drawBase = (x: number, y: number, color: number) => {
             graphics.fillStyle(color, 1);
@@ -65,10 +65,9 @@ export default class LudoBoardScene extends Phaser.Scene {
             graphics.fillRect((x + 1) * this.cellSize, (y + 1) * this.cellSize, 4 * this.cellSize, 4 * this.cellSize);
         };
 
-        drawBase(0, 0, colors.red); 
-        drawBase(9, 0, colors.green);
-        drawBase(9, 9, colors.yellow); 
-        drawBase(0, 9, colors.blue);
+        // Bases as per 1st image: Top-Left Green, Top-Right Yellow, Bottom-Right Blue, Bottom-Left Red
+        drawBase(0, 0, colors.green); drawBase(9, 0, colors.yellow);
+        drawBase(9, 9, colors.blue); drawBase(0, 9, colors.red);
 
         ['red','green','yellow','blue'].forEach((col) => {
             graphics.fillStyle(colors[col as keyof typeof colors], 1);
@@ -77,26 +76,18 @@ export default class LudoBoardScene extends Phaser.Scene {
             });
         });
 
-        // Center Finish
         const cx = 7.5 * this.cellSize;
         const cy = 7.5 * this.cellSize;
         const mid = 1.5 * this.cellSize;
-        graphics.fillStyle(colors.red, 1); graphics.fillTriangle(cx - mid, cy - mid, cx + mid, cy - mid, cx, cy);
-        graphics.fillStyle(colors.green, 1); graphics.fillTriangle(cx + mid, cy - mid, cx + mid, cy + mid, cx, cy);
-        graphics.fillStyle(colors.yellow, 1); graphics.fillTriangle(cx - mid, cy + mid, cx + mid, cy + mid, cx, cy);
-        graphics.fillStyle(colors.blue, 1); graphics.fillTriangle(cx - mid, cy - mid, cx - mid, cy + mid, cx, cy);
+        graphics.fillStyle(colors.green, 1); graphics.fillTriangle(cx - mid, cy - mid, cx - mid, cy + mid, cx, cy);
+        graphics.fillStyle(colors.yellow, 1); graphics.fillTriangle(cx - mid, cy - mid, cx + mid, cy - mid, cx, cy);
+        graphics.fillStyle(colors.blue, 1); graphics.fillTriangle(cx + mid, cy - mid, cx + mid, cy + mid, cx, cy);
+        graphics.fillStyle(colors.red, 1); graphics.fillTriangle(cx - mid, cy + mid, cx + mid, cy + mid, cx, cy);
 
-        // Stars & Arrows
-        const starColors = [colors.red, colors.blue, colors.yellow, colors.green];
-        STAR_INDICES.forEach((idx, i) => {
+        SAFE_ZONE_INDICES.forEach(idx => {
             const coord = pathCoords[idx];
-            this.drawStar(coord.x * this.cellSize + this.cellSize/2, coord.y * this.cellSize + this.cellSize/2, 5, this.cellSize * 0.4, this.cellSize * 0.2, starColors[i]);
+            this.drawStar(coord.x * this.cellSize + this.cellSize/2, coord.y * this.cellSize + this.cellSize/2, 5, this.cellSize * 0.4, this.cellSize * 0.2, 0x000000);
         });
-
-        this.drawArrow(6.5 * this.cellSize, 1.5 * this.cellSize, colors.red, 'down');
-        this.drawArrow(1.5 * this.cellSize, 8.5 * this.cellSize, colors.blue, 'right');
-        this.drawArrow(8.5 * this.cellSize, 13.5 * this.cellSize, colors.yellow, 'up');
-        this.drawArrow(13.5 * this.cellSize, 6.5 * this.cellSize, colors.green, 'left');
 
         graphics.lineStyle(1, 0x000000, 0.3);
         for(let i=0; i<=15; i++) {
@@ -109,7 +100,7 @@ export default class LudoBoardScene extends Phaser.Scene {
 
     private drawStar(x: number, y: number, points: number, outerRadius: number, innerRadius: number, color: number) {
         const g = this.add.graphics();
-        g.fillStyle(color, 1); g.lineStyle(1, 0x000000, 1);
+        g.fillStyle(color, 0.2);
         let rot = Math.PI / 2 * 3;
         let step = Math.PI / points;
         g.beginPath(); g.moveTo(x, y - outerRadius);
@@ -118,49 +109,13 @@ export default class LudoBoardScene extends Phaser.Scene {
             rot += step; g.lineTo(x + Math.cos(rot) * innerRadius, y + Math.sin(rot) * innerRadius);
             rot += step;
         }
-        g.closePath(); g.fillPath(); g.strokePath();
-    }
-
-    private drawArrow(x: number, y: number, color: number, direction: string) {
-        const g = this.add.graphics();
-        g.fillStyle(color, 1);
-        g.lineStyle(1, 0x000000, 1);
-        
-        const size = this.cellSize * 0.3;
-        
-        // Define arrow points relative to center (0,0) pointing down
-        let points = [
-            {x: -size/2, y: -size},
-            {x: size/2, y: -size},
-            {x: size/2, y: 0},
-            {x: size, y: 0},
-            {x: 0, y: size},
-            {x: -size, y: 0},
-            {x: -size/2, y: 0}
-        ];
-
-        // Rotate points based on direction
-        const rotatedPoints = points.map(p => {
-            if (direction === 'right') return { x: -p.y, y: p.x };
-            if (direction === 'up') return { x: -p.x, y: -p.y };
-            if (direction === 'left') return { x: p.y, y: -p.x };
-            return p; // down
-        });
-
-        g.beginPath();
-        g.moveTo(x + rotatedPoints[0].x, y + rotatedPoints[0].y);
-        for (let i = 1; i < rotatedPoints.length; i++) {
-            g.lineTo(x + rotatedPoints[i].x, y + rotatedPoints[i].y);
-        }
-        g.closePath();
-        g.fillPath();
-        g.strokePath();
+        g.closePath(); g.fillPath();
     }
 
     private onUpdateGameState(gameState: any) {
         this.tokenSprites.forEach(t => t.destroy());
         this.tokenSprites = [];
-        const colorsMap: Record<string, number> = { red: 0xff0000, green: 0x2ecc40, yellow: 0xffdc00, blue: 0x0074d9 };
+        const colorsMap: Record<string, number> = { red: 0xff4136, green: 0x2ecc40, yellow: 0xffdc00, blue: 0x0074d9 };
         const cellGroups: Record<string, any[]> = {};
 
         Object.values(gameState.players).forEach((player: any) => {
@@ -172,14 +127,14 @@ export default class LudoBoardScene extends Phaser.Scene {
                     cellId = `base_${player.color}_${index}`;
                     baseCoords = baseSpots[player.color][index];
                 } else if (token.status === 'active') {
-                    if (token.position <= 51) {
+                    if (token.position <= 50) {
                         const offset = START_SQUARES_MAP[player.color as keyof typeof START_SQUARES_MAP] || 0;
                         const absPos = (token.position + offset) % 52;
                         cellId = `path_${absPos}`;
                         baseCoords = pathCoords[absPos];
                     } else {
-                        cellId = `home_${player.color}_${token.position - 52}`;
-                        baseCoords = homePaths[player.color][token.position - 52];
+                        cellId = `home_${player.color}_${token.position - 51}`;
+                        baseCoords = homePaths[player.color][token.position - 51];
                     }
                 } else {
                     cellId = `finish_${player.color}`;
