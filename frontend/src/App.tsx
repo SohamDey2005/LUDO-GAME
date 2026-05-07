@@ -78,10 +78,10 @@ function App() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col md:flex-row items-center justify-center gap-12 p-8 bg-gradient-to-br from-slate-900 to-slate-800">
+    <div className="min-h-screen flex flex-col md:flex-row items-center justify-center gap-6 md:gap-12 p-4 sm:p-8 bg-gradient-to-br from-slate-900 to-slate-800 overflow-x-hidden">
       
-      <div className="flex flex-col items-center gap-8 bg-slate-800/50 p-8 rounded-3xl backdrop-blur-md border border-slate-700 shadow-2xl w-full max-w-sm">
-        <h1 className="text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 tracking-tight">
+      <div className="flex flex-col items-center gap-6 sm:gap-8 bg-slate-800/50 p-6 sm:p-8 rounded-3xl backdrop-blur-md border border-slate-700 shadow-2xl w-full max-w-sm md:max-w-xs lg:max-w-sm">
+        <h1 className="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-blue-400 to-purple-500 tracking-tight">
             LUDO AI
         </h1>
         

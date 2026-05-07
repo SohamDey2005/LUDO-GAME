@@ -50,7 +50,7 @@ export default class LudoBoardScene extends Phaser.Scene {
 
     create() {
         const graphics = this.add.graphics();
-        const boardSize = Math.min(window.innerWidth, 600);
+        const boardSize = 600;
         this.cellSize = boardSize / 15;
         
         graphics.fillStyle(0xffffff, 1);
