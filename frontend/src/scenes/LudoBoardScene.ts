@@ -173,22 +173,22 @@ export default class LudoBoardScene extends Phaser.Scene {
                 const finalX = baseCoords.x * this.cellSize + this.cellSize/2 + ox;
                 const finalY = baseCoords.y * this.cellSize + this.cellSize/2 + oy;
 
-                // Hitbox is significantly larger than the visual token for easy clicking
-                const hitboxRadius = this.cellSize * 0.6;
+                // Match hitbox closely to visual radius with slight 15% padding for usability
                 const visualRadius = this.cellSize * (group.length > 1 ? 0.25 : 0.35);
+                const hitboxRadius = visualRadius * 1.15;
 
                 const sprite = this.add.circle(finalX, finalY, visualRadius, colorsMap[player.color]);
-                sprite.setStrokeStyle(2, 0xffffff);
+                sprite.setStrokeStyle(2, 0xffffff, 0.8);
                 
-                // Invisible Hitbox
-                sprite.setInteractive(new Phaser.Geom.Circle(0, 0, hitboxRadius), Phaser.Geom.Circle.Contains);
+                // Use the precise visual circle as the hit area
+                sprite.setInteractive(new Phaser.Geom.Circle(0, 0, hitboxRadius / sprite.scaleX), Phaser.Geom.Circle.Contains);
                 
                 // Pulse effect for movable tokens
                 if (isMovable) {
                     this.tweens.add({
                         targets: sprite,
-                        scale: 1.15,
-                        duration: 600,
+                        scale: 1.1,
+                        duration: 800,
                         yoyo: true,
                         repeat: -1,
                         ease: 'Sine.easeInOut'
@@ -196,26 +196,32 @@ export default class LudoBoardScene extends Phaser.Scene {
                     sprite.setStrokeStyle(3, 0xffffff, 1);
                 }
 
-                this.tweens.add({ targets: sprite, scale: { from: 0, to: 1 }, duration: 300, ease: 'Back.easeOut' });
+                this.tweens.add({ 
+                    targets: sprite, 
+                    scale: { from: 0, to: isMovable ? 1.1 : 1 }, 
+                    duration: 300, 
+                    ease: 'Back.easeOut' 
+                });
 
-                // Desktop Hover Effects
+                // Interaction Handlers
                 sprite.on('pointerover', () => {
                     if (isMovable) {
                         sprite.setStrokeStyle(4, 0xffffff, 1);
-                        this.tweens.add({ targets: sprite, scale: 1.25, duration: 100 });
+                        this.tweens.add({ targets: sprite, scale: 1.2, duration: 100 });
                         document.body.style.cursor = 'pointer';
                     }
                 });
 
                 sprite.on('pointerout', () => {
-                    sprite.setStrokeStyle(isMovable ? 3 : 2, 0xffffff, isMovable ? 1 : 0.6);
-                    this.tweens.add({ targets: sprite, scale: isMovable ? 1.15 : 1, duration: 100 });
+                    sprite.setStrokeStyle(isMovable ? 3 : 2, 0xffffff, isMovable ? 1 : 0.8);
+                    this.tweens.add({ targets: sprite, scale: isMovable ? 1.1 : 1, duration: 100 });
                     document.body.style.cursor = 'default';
                 });
 
                 sprite.on('pointerdown', () => {
                     if (isMovable) {
-                        sprite.setAlpha(0.7);
+                        sprite.setAlpha(0.6);
+                        this.tweens.add({ targets: sprite, scale: 0.9, duration: 50, yoyo: true });
                         window.dispatchEvent(new CustomEvent('ludo-token-click', { detail: token.id }));
                     }
                 });
