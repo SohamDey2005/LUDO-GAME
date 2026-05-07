@@ -157,19 +157,72 @@ export default class LudoBoardScene extends Phaser.Scene {
             });
         });
 
+        const movableTokenIds = gameState.dice_value ? 
+            gameState.players[gameState.current_turn]?.tokens
+                .filter((t: any) => RulesEngine.is_valid_move(gameState, t, gameState.dice_value))
+                .map((t: any) => t.id) : [];
+
         Object.entries(cellGroups).forEach(([cellId, group]) => {
             group.forEach((item, i) => {
                 const { token, player, baseCoords } = item;
+                const isMovable = movableTokenIds.includes(token.id);
+                
                 let ox = 0, oy = 0;
                 if (group.length > 1 && !cellId.startsWith('base')) {
                     const angle = (i / group.length) * Math.PI * 2;
                     const r = this.cellSize * 0.2; ox = Math.cos(angle) * r; oy = Math.sin(angle) * r;
                 }
-                const sprite = this.add.circle(baseCoords.x * this.cellSize + this.cellSize/2 + ox, baseCoords.y * this.cellSize + this.cellSize/2 + oy, this.cellSize * (group.length > 1 ? 0.25 : 0.35), colorsMap[player.color]);
+                
+                const finalX = baseCoords.x * this.cellSize + this.cellSize/2 + ox;
+                const finalY = baseCoords.y * this.cellSize + this.cellSize/2 + oy;
+
+                // Hitbox is significantly larger than the visual token for easy clicking
+                const hitboxRadius = this.cellSize * 0.6;
+                const visualRadius = this.cellSize * (group.length > 1 ? 0.25 : 0.35);
+
+                const sprite = this.add.circle(finalX, finalY, visualRadius, colorsMap[player.color]);
                 sprite.setStrokeStyle(2, 0xffffff);
-                sprite.setInteractive(new Phaser.Geom.Circle(0, 0, this.cellSize * 0.4), Phaser.Geom.Circle.Contains);
+                
+                // Invisible Hitbox
+                sprite.setInteractive(new Phaser.Geom.Circle(0, 0, hitboxRadius), Phaser.Geom.Circle.Contains);
+                
+                // Pulse effect for movable tokens
+                if (isMovable) {
+                    this.tweens.add({
+                        targets: sprite,
+                        scale: 1.15,
+                        duration: 600,
+                        yoyo: true,
+                        repeat: -1,
+                        ease: 'Sine.easeInOut'
+                    });
+                    sprite.setStrokeStyle(3, 0xffffff, 1);
+                }
+
                 this.tweens.add({ targets: sprite, scale: { from: 0, to: 1 }, duration: 300, ease: 'Back.easeOut' });
-                sprite.on('pointerdown', () => window.dispatchEvent(new CustomEvent('ludo-token-click', { detail: token.id })));
+
+                // Desktop Hover Effects
+                sprite.on('pointerover', () => {
+                    if (isMovable) {
+                        sprite.setStrokeStyle(4, 0xffffff, 1);
+                        this.tweens.add({ targets: sprite, scale: 1.25, duration: 100 });
+                        document.body.style.cursor = 'pointer';
+                    }
+                });
+
+                sprite.on('pointerout', () => {
+                    sprite.setStrokeStyle(isMovable ? 3 : 2, 0xffffff, isMovable ? 1 : 0.6);
+                    this.tweens.add({ targets: sprite, scale: isMovable ? 1.15 : 1, duration: 100 });
+                    document.body.style.cursor = 'default';
+                });
+
+                sprite.on('pointerdown', () => {
+                    if (isMovable) {
+                        sprite.setAlpha(0.7);
+                        window.dispatchEvent(new CustomEvent('ludo-token-click', { detail: token.id }));
+                    }
+                });
+
                 this.tokenSprites.push(sprite);
             });
         });
