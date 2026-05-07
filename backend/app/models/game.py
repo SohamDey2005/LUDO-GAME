@@ -70,6 +70,7 @@ class GameState(BaseModel):
     consecutive_sixes: int = 0
     winner: Optional[Color] = None
     rankings: List[Color] = [] # Order of finishing
+    extra_turns_queued: int = 0 # Stackable bonus turns
     last_action: Optional[str] = None
     turn_snapshot: Optional[Dict] = None # For Rule 6 rollback
     

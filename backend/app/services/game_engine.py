@@ -155,11 +155,21 @@ class GameEngine:
 
         token_finished = token_to_move.status == TokenStatus.FINISHED
         
-        if (game_state.config.bonus_turn_on_six and game_state.dice_value == 6) or \
-           (game_state.config.bonus_turn_on_capture and captured_token is not None) or \
-           (game_state.config.bonus_turn_on_finish and token_finished):
-            game_state.dice_value = None 
-            game_state.last_action += " Extra turn!"
+        # Calculate bonus turns earned in this move
+        bonuses_earned = 0
+        if game_state.config.bonus_turn_on_six and game_state.dice_value == 6:
+            bonuses_earned += 1
+        if game_state.config.bonus_turn_on_capture and captured_token is not None:
+            bonuses_earned += 1
+        if game_state.config.bonus_turn_on_finish and token_finished:
+            bonuses_earned += 1
+
+        game_state.extra_turns_queued += bonuses_earned
+
+        if game_state.extra_turns_queued > 0:
+            game_state.extra_turns_queued -= 1
+            game_state.dice_value = None # Reset dice for extra roll
+            game_state.last_action += f" {bonuses_earned} bonus earned! Extra turn awarded ({game_state.extra_turns_queued} remaining)."
         else:
             GameEngine.next_turn(game_state)
 
@@ -168,6 +178,7 @@ class GameEngine:
         """Advances the game to the next player's turn, skipping finished players."""
         game_state.dice_value = None
         game_state.consecutive_sixes = 0
+        game_state.extra_turns_queued = 0
 
         current_idx = game_state.turn_order.index(game_state.current_turn)
         for i in range(1, 5):
