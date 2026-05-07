@@ -69,6 +69,12 @@ export default class LudoBoardScene extends Phaser.Scene {
         drawBase(0, 0, colors.green); drawBase(9, 0, colors.yellow);
         drawBase(9, 9, colors.blue); drawBase(0, 9, colors.red);
 
+        // Color Start Squares
+        graphics.fillStyle(colors.green, 1); graphics.fillRect(1 * this.cellSize, 6 * this.cellSize, this.cellSize, this.cellSize);
+        graphics.fillStyle(colors.yellow, 1); graphics.fillRect(8 * this.cellSize, 1 * this.cellSize, this.cellSize, this.cellSize);
+        graphics.fillStyle(colors.blue, 1); graphics.fillRect(13 * this.cellSize, 8 * this.cellSize, this.cellSize, this.cellSize);
+        graphics.fillStyle(colors.red, 1); graphics.fillRect(6 * this.cellSize, 13 * this.cellSize, this.cellSize, this.cellSize);
+
         ['red','green','yellow','blue'].forEach((col) => {
             graphics.fillStyle(colors[col as keyof typeof colors], 1);
             homePaths[col].forEach(p => {
