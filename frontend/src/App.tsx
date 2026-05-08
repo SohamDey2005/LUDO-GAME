@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import PhaserGameComponent from './components/PhaserGameComponent';
 import Dice from './components/Dice';
-import { createGame, rollDice, moveToken, GameState } from './services/api';
+import { rollDice, moveToken, GameState } from './services/api';
 import { socketManager } from './services/socket';
 import { audioManager } from './services/audio';
 
