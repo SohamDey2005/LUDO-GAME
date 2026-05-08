@@ -37,11 +37,16 @@ function App() {
   useEffect(() => {
     if (gameState && gameState.status === 'in_progress' && !isRolling) {
       const currentPlayer = gameState.players[gameState.current_turn];
+      
+      // We only trigger if it's an AI's turn AND either:
+      // 1. They haven't rolled yet (dice_value is null)
+      // 2. They have rolled but haven't moved yet (dice_value is not null)
       if (currentPlayer && currentPlayer.player_type === 'ai') {
-        // Add a small delay for realism
         const timer = setTimeout(async () => {
           try {
-            await aiMove(gameState.id);
+            const newState = await aiMove(gameState.id);
+            // We set state locally to ensure continuity even if socket is slow
+            setGameState(newState);
           } catch (e) {
             console.error("AI move failed", e);
           }
@@ -49,7 +54,7 @@ function App() {
         return () => clearTimeout(timer);
       }
     }
-  }, [gameState, isRolling]);
+  }, [gameState?.current_turn, gameState?.dice_value, gameState?.status, isRolling]);
 
   const handleRollDice = async () => {
     if (!gameState) return;
