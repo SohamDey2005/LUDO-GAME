@@ -26,15 +26,16 @@ const PlayerCountSelector: React.FC<Props> = ({ selectedCount, onSelect }) => {
               onClick={() => onSelect(count)}
               className={`
                 w-24 h-24 rounded-3xl flex flex-col items-center justify-center gap-1 transition-all duration-500
+                bg-gradient-to-br ${config.color} shadow-lg
                 ${isSelected 
-                  ? `bg-gradient-to-br ${config.color} shadow-[0_0_35px_${config.glow}] scale-110 border-2 border-white/80` 
-                  : `bg-slate-800/40 border-2 border-white/5 hover:bg-slate-800/60 scale-100 hover:scale-105 shadow-[0_0_15px_${config.glow.replace('0.5', '0.15')}]`}
+                  ? `shadow-[0_0_40px_${config.glow}] scale-110 border-[3px] border-white z-10 opacity-100` 
+                  : `scale-95 border-2 border-white/20 opacity-60 hover:opacity-100 hover:scale-100`}
               `}
             >
-              <span className={`text-3xl font-black ${isSelected ? 'text-white' : ''}`} style={{ color: isSelected ? 'white' : config.glow.replace('0.5', '1') }}>
+              <span className="text-3xl font-black text-white drop-shadow-md">
                 {count}
               </span>
-              <span className={`text-[10px] uppercase font-black tracking-widest ${isSelected ? 'text-white/90' : 'text-slate-500'}`}>
+              <span className="text-[10px] uppercase font-black tracking-widest text-white/90">
                 {config.label}
               </span>
             </button>
