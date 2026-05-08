@@ -7,6 +7,7 @@ class HeuristicWeights:
     REACH_SAFE_ZONE = 50
     ESCAPE_DANGER = 40
     EXPOSE_TOKEN = -60
+    CREATE_BLOCK = 70  # Bonus for stacking two tokens together
     ADVANCE_TOWARD_FINISH = 30 # Base value, multiplied by distance
 
 class Evaluator:
@@ -52,6 +53,14 @@ class Evaluator:
                         if t.status == TokenStatus.ACTIVE and t.get_absolute_position() == sim_abs_pos:
                             score += HeuristicWeights.CAPTURE_ENEMY
                             break
+                            
+        # Check Block Building (landing on own token)
+        if sim_abs_pos != -1:
+            for t in player.tokens:
+                if t.id != token_id and t.status == TokenStatus.ACTIVE:
+                    if t.get_absolute_position() == sim_abs_pos:
+                        score += HeuristicWeights.CREATE_BLOCK
+                        break
 
         # Check Safe Zone
         if sim_abs_pos in SAFE_SQUARES_ABSOLUTE:
