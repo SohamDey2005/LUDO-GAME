@@ -5,8 +5,11 @@ import { createGame, rollDice, moveToken, GameState } from './services/api';
 import { socketManager } from './services/socket';
 import { audioManager } from './services/audio';
 
+import SetupScreen from './components/setup/SetupScreen';
+
 function App() {
   const [gameState, setGameState] = useState<GameState | null>(null);
+  const [phase, setPhase] = useState<'setup' | 'playing'>('setup');
   const [isRolling, setIsRolling] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [clientId] = useState<string>(Math.random().toString(36).substring(7));
@@ -17,16 +20,17 @@ function App() {
         setGameState(state);
     });
 
-    // Initialize game and connect to socket
-    createGame().then(state => {
-        setGameState(state);
-        socketManager.connect(state.id, clientId);
-    }).catch(e => setError(e.message));
-
     return () => {
         socketManager.disconnect();
     };
-  }, [clientId]);
+  }, []);
+
+  useEffect(() => {
+    // Only connect if we have a game state
+    if (gameState?.id) {
+        socketManager.connect(gameState.id, clientId);
+    }
+  }, [gameState?.id, clientId]);
 
   // Handle AI turns automatically
   useEffect(() => {
@@ -73,8 +77,13 @@ function App() {
       }
   };
 
-  if (!gameState) {
-      return <div className="min-h-screen flex items-center justify-center bg-slate-900 text-white">Loading...</div>;
+  const handleGameCreated = (state: GameState) => {
+    setGameState(state);
+    setPhase('playing');
+  };
+
+  if (phase === 'setup' || !gameState) {
+    return <SetupScreen onGameCreated={handleGameCreated} />;
   }
 
   return (

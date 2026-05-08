@@ -1,6 +1,6 @@
 from fastapi import APIRouter, HTTPException, BackgroundTasks
 from pydantic import BaseModel
-from typing import Dict
+from typing import Dict, List
 import uuid
 
 from app.models.game import GameState, Color, PlayerType
@@ -11,21 +11,32 @@ from app.ai.engine import AIEngine
 
 router = APIRouter()
 
-class JoinRequest(BaseModel):
+class PlayerConfig(BaseModel):
     name: str
+    color: Color
     player_type: PlayerType
+
+class CreateGameRequest(BaseModel):
+    players: List[PlayerConfig]
 
 class MoveRequest(BaseModel):
     player_id: str
     token_id: str
 
 @router.post("/create", response_model=GameState)
-async def create_game():
+async def create_game(request: CreateGameRequest):
+    if len(request.players) < 2 or len(request.players) > 4:
+        raise HTTPException(status_code=400, detail="Ludo requires 2-4 players")
+        
+    # Check for duplicate colors
+    colors = [p.color for p in request.players]
+    if len(colors) != len(set(colors)):
+        raise HTTPException(status_code=400, detail="Each player must have a unique color")
+
     game = GameEngine.create_game()
-    GameEngine.add_player(game, "Player 1", Color.RED, PlayerType.HUMAN)
-    GameEngine.add_player(game, "Player 2", Color.GREEN, PlayerType.HUMAN)
-    GameEngine.add_player(game, "Player 3", Color.YELLOW, PlayerType.HUMAN)
-    GameEngine.add_player(game, "Player 4", Color.BLUE, PlayerType.HUMAN)
+    for p in request.players:
+        GameEngine.add_player(game, p.name, p.color, p.player_type)
+        
     GameEngine.start_game(game)
     save_game(game)
     return game

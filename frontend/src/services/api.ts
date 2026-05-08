@@ -29,9 +29,22 @@ export interface GameState {
 
 const API_BASE = 'https://ludo-backend-175911647281.us-central1.run.app/api/game';
 
-export const createGame = async (): Promise<GameState> => {
-    const res = await fetch(`${API_BASE}/create`, { method: 'POST' });
-    if (!res.ok) throw new Error('Failed to create game');
+export interface PlayerConfig {
+    name: string;
+    color: string;
+    player_type: 'human' | 'ai';
+}
+
+export const createGame = async (players: PlayerConfig[]): Promise<GameState> => {
+    const res = await fetch(`${API_BASE}/create`, { 
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ players })
+    });
+    if (!res.ok) {
+        const error = await res.json();
+        throw new Error(error.detail || 'Failed to create game');
+    }
     return res.json();
 };
 
