@@ -19,17 +19,17 @@ const PlayerSetupCard: React.FC<Props> = ({ index, config, availableColors, onUp
   return (
     <div className="glass-dark p-6 rounded-3xl w-full max-w-sm space-y-6 border border-white/5 animate-fade-in" style={{ animationDelay: `${index * 0.1}s` }}>
       <div className="flex justify-between items-center">
-        <h3 className="text-sm font-bold uppercase tracking-widest text-slate-400">Player {index + 1}</h3>
+        <h3 className="text-sm font-black uppercase tracking-[0.2em] text-slate-300">Player {index + 1}</h3>
         <div className="flex bg-slate-900/50 p-1 rounded-xl border border-white/5">
           <button
             onClick={() => onUpdate({ ...config, player_type: 'human' })}
-            className={`px-3 py-1 text-[10px] uppercase font-bold rounded-lg transition-all ${config.player_type === 'human' ? 'bg-blue-500 text-white' : 'text-slate-500 hover:text-white'}`}
+            className={`px-3 py-1 text-[10px] uppercase font-bold rounded-lg transition-all ${config.player_type === 'human' ? 'bg-blue-500 text-white' : 'text-slate-400 hover:text-white'}`}
           >
             Human
           </button>
           <button
             onClick={() => onUpdate({ ...config, player_type: 'ai' })}
-            className={`px-3 py-1 text-[10px] uppercase font-bold rounded-lg transition-all ${config.player_type === 'ai' ? 'bg-purple-600 text-white' : 'text-slate-500 hover:text-white'}`}
+            className={`px-3 py-1 text-[10px] uppercase font-bold rounded-lg transition-all ${config.player_type === 'ai' ? 'bg-purple-600 text-white' : 'text-slate-400 hover:text-white'}`}
           >
             AI
           </button>
@@ -37,18 +37,18 @@ const PlayerSetupCard: React.FC<Props> = ({ index, config, availableColors, onUp
       </div>
 
       <div className="space-y-2">
-        <label className="text-[10px] uppercase font-black text-slate-500 tracking-tighter">Nickname</label>
+        <label className="text-[10px] uppercase font-black text-slate-400 tracking-widest">Nickname</label>
         <input
           type="text"
           value={config.name}
           onChange={(e) => onUpdate({ ...config, name: e.target.value })}
           placeholder={`Player ${index + 1}`}
-          className="w-full bg-slate-900/50 border border-white/10 rounded-xl px-4 py-3 text-sm focus:outline-none focus:border-blue-500 transition-all font-medium"
+          className="w-full bg-slate-950/50 border border-white/10 rounded-xl px-4 py-3 text-sm text-white focus:outline-none focus:border-blue-500 transition-all font-medium placeholder:text-slate-600"
         />
       </div>
 
       <div className="space-y-2">
-        <label className="text-[10px] uppercase font-black text-slate-500 tracking-tighter">Choose Color</label>
+        <label className="text-[10px] uppercase font-black text-slate-400 tracking-widest">Choose Color</label>
         <div className="flex justify-between gap-2">
           {colors.map((c) => {
             const isTaken = !availableColors.includes(c.name) && config.color !== c.name;

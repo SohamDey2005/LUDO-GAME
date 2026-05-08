@@ -29,7 +29,7 @@ const Dice: React.FC<DiceProps> = ({ value, isRolling, disabled, onRoll }) => {
 
         for (let i = 0; i < 9; i++) {
             if (activeDots.includes(i)) {
-                dots.push(<div key={i} className="w-3 h-3 bg-slate-800 rounded-full" />);
+                dots.push(<div key={i} className="w-3 h-3 bg-slate-950 rounded-full" />);
             } else {
                 dots.push(<div key={i} className="w-3 h-3" />);
             }
