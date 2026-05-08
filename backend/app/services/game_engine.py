@@ -180,13 +180,26 @@ class GameEngine:
         game_state.consecutive_sixes = 0
         game_state.extra_turns_queued = 0
 
+        # Check if game should actually be finished (last player remaining)
+        active_players = [c for c in game_state.players.keys() if c not in game_state.rankings]
+        if len(active_players) <= 1:
+            if active_players and active_players[0] not in game_state.rankings:
+                game_state.rankings.append(active_players[0])
+            game_state.status = GameStatus.FINISHED
+            game_state.last_action = "Game Over! All players finished."
+            return
+
         current_idx = game_state.turn_order.index(game_state.current_turn)
+        # We loop through up to 4 possible positions to find the next active player
         for i in range(1, 5):
             next_idx = (current_idx + i) % 4
             next_color = game_state.turn_order[next_idx]
-            # Skip players who are not in the game or have already finished
+            
+            # Must be a player in the game AND not finished
             if next_color in game_state.players and next_color not in game_state.rankings:
-                game_state.current_turn = next_color
+                if next_color != game_state.current_turn:
+                    game_state.current_turn = next_color
+                    game_state.last_action += f" Turn passed to {next_color.value}."
                 break
         
         GameEngine.take_turn_snapshot(game_state)

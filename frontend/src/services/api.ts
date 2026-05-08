@@ -27,7 +27,7 @@ export interface GameState {
     turn_order: string[];
 }
 
-const API_BASE = 'https://ludo-backend-175911647281.us-central1.run.app/api/game';
+export const API_BASE = 'https://ludo-backend-175911647281.us-central1.run.app/api/game';
 
 export interface PlayerConfig {
     name: string;
@@ -67,5 +67,11 @@ export const moveToken = async (gameId: string, playerId: string, tokenId: strin
         body: JSON.stringify({ player_id: playerId, token_id: tokenId })
     });
     if (!res.ok) throw new Error('Failed to move token');
+    return res.json();
+};
+
+export const aiMove = async (gameId: string): Promise<GameState> => {
+    const res = await fetch(`${API_BASE}/${gameId}/ai-move`, { method: 'POST' });
+    if (!res.ok) throw new Error('Failed to perform AI move');
     return res.json();
 };

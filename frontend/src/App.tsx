@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
 import PhaserGameComponent from './components/PhaserGameComponent';
 import Dice from './components/Dice';
-import { rollDice, moveToken, GameState } from './services/api';
+import { rollDice, moveToken, aiMove, GameState } from './services/api';
 import { socketManager } from './services/socket';
 import { audioManager } from './services/audio';
 
 import SetupScreen from './components/setup/SetupScreen';
+import GameOverOverlay from './components/GameOverOverlay';
 
 function App() {
   const [gameState, setGameState] = useState<GameState | null>(null);
@@ -40,8 +41,7 @@ function App() {
         // Add a small delay for realism
         const timer = setTimeout(async () => {
           try {
-            await fetch(`https://ludo-backend-175911647281.us-central1.run.app/api/game/${gameState.id}/ai-move`, { method: 'POST' });
-            // The socket will handle the state update
+            await aiMove(gameState.id);
           } catch (e) {
             console.error("AI move failed", e);
           }
@@ -156,6 +156,13 @@ function App() {
       <div className="w-full flex justify-center items-center px-2">
         <PhaserGameComponent gameState={gameState} onTokenClick={handleTokenClick} />
       </div>
+
+      {gameState.status === 'finished' && (
+        <GameOverOverlay 
+            gameState={gameState} 
+            onRestart={() => setPhase('setup')} 
+        />
+      )}
 
       {/* Footer Credit */}
       <footer className="fixed bottom-2 sm:bottom-4 left-1/2 -translate-x-1/2 z-50 pointer-events-none animate-in fade-in duration-1000">
