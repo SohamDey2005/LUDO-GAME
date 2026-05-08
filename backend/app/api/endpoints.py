@@ -11,6 +11,10 @@ from app.ai.engine import AIEngine
 
 router = APIRouter()
 
+class JoinRequest(BaseModel):
+    name: str
+    player_type: PlayerType
+
 class PlayerConfig(BaseModel):
     name: str
     color: Color
