@@ -57,9 +57,13 @@ class Evaluator:
         if sim_abs_pos in SAFE_SQUARES_ABSOLUTE:
             score += HeuristicWeights.REACH_SAFE_ZONE
 
-        # Danger Evaluation
-        is_in_danger_now = Evaluator.is_in_danger_at_pos(game_state, sim_token)
+        # Danger Evaluation (Look-Ahead)
+        risk_score_now = Evaluator.get_danger_score(game_state, sim_token)
+        is_in_danger_now = risk_score_now > 0
         
+        # Penalize moves based on how much risk they create
+        score -= risk_score_now
+
         if was_in_danger and not is_in_danger_now:
             score += HeuristicWeights.ESCAPE_DANGER
         elif not was_in_danger and is_in_danger_now:
@@ -75,20 +79,50 @@ class Evaluator:
 
     @staticmethod
     def is_in_danger_at_pos(game_state: GameState, token: Token) -> bool:
+        """
+        Improved Look-Ahead: Counts how many enemies can reach this position 
+        in their next turn. Returns True if at least one enemy can capture.
+        """
         abs_pos = token.get_absolute_position()
         if abs_pos == -1 or abs_pos in SAFE_SQUARES_ABSOLUTE:
             return False
 
-        # Simple danger check: Is any opponent within 6 squares behind us?
+        danger_count = 0
+        # Check all opponents
+        for c, p in game_state.players.items():
+            if c != token.color:
+                for t in p.tokens:
+                    # Enemy must be active to capture
+                    if t.status == TokenStatus.ACTIVE:
+                        enemy_abs_pos = t.get_absolute_position()
+                        if enemy_abs_pos != -1:
+                            # Distance from enemy to us on the 52-square perimeter
+                            dist = (abs_pos - enemy_abs_pos) % 52
+                            # If enemy is within 1-6 squares, we are in danger
+                            if 1 <= dist <= 6:
+                                danger_count += 1
+                                
+        return danger_count > 0
+
+    @staticmethod
+    def get_danger_score(game_state: GameState, token: Token) -> float:
+        """
+        Calculates a numeric risk score based on how many enemies threaten this spot.
+        Used for deeper 'Look-Ahead' decision making.
+        """
+        abs_pos = token.get_absolute_position()
+        if abs_pos == -1 or abs_pos in SAFE_SQUARES_ABSOLUTE:
+            return 0
+
+        risk = 0
         for c, p in game_state.players.items():
             if c != token.color:
                 for t in p.tokens:
                     if t.status == TokenStatus.ACTIVE:
-                        enemy_pos = t.get_absolute_position()
-                        if enemy_pos != -1:
-                            # Calculate distance enemy has to travel to reach us
-                            # Since board is 52 squares perimeter
-                            dist = (abs_pos - enemy_pos) % 52
+                        enemy_abs_pos = t.get_absolute_position()
+                        if enemy_abs_pos != -1:
+                            dist = (abs_pos - enemy_abs_pos) % 52
                             if 1 <= dist <= 6:
-                                return True
-        return False
+                                # High risk if multiple enemies can reach this spot
+                                risk += (7 - dist) * 10 # Closer enemies are more dangerous
+        return risk
