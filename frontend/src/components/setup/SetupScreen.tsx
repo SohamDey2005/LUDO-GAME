@@ -9,7 +9,7 @@ interface Props {
 
 const SetupScreen: React.FC<Props> = ({ onGameCreated }) => {
   const [step, setStep] = useState<1 | 2>(1);
-  const [playerCount, setPlayerCount] = useState(4);
+  const [playerCount, setPlayerCount] = useState(0);
   const [players, setPlayers] = useState<PlayerConfig[]>([
     { name: 'SOHAM', color: 'red', player_type: 'human' },
     { name: 'AI Bot 1', color: 'green', player_type: 'ai' },
